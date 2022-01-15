@@ -22,3 +22,25 @@ export async function main(ns) {
     ns.print("=============== Inside MAIN!!!!!! ===================")
    return grabOfficeData(arg[0], arg[1])
 }
+
+
+//  interface Office {
+//     /** City of the office */
+//     loc: string;
+//     /** Maximum number of employee */
+//     size: number;
+//     /** Minimum amount of energy of the employees */
+//     minEne: number;
+//     /** Maximum amount of energy of the employees */
+//     maxEne: number;
+//     /** Minimum happiness of the employees */
+//     minHap: number;
+//     /** Maximum happiness of the employees */
+//     maxHap: number;
+//     /** Maximum morale of the employees */
+//     maxMor: number;
+//     /** Name of all the employees */
+//     employees: string[];
+//     /** Positions of the employees */
+//     employeeProd: EmployeeJobs;
+//   }
