@@ -1,32 +1,29 @@
+import grabOfficeData from 'officeInfo.js';
 /** @param {NS} ns **/
 export async function main(ns) {
+
 	ns.clearLog();
 	ns.tail();
 
+
 	var temp, temp2, temp3;
 	var divisionsArray = ["PogFarms", "PogEats", "PogPlaces"]
-	var divisionInfo = [{ name: 'PogFarms' }, { name: 'PogEats' }, { name: "PogPlaces" }];
-	var officeInfo = { "PogFarms": [], "PogEats": [], "PogPlaces": [] }
-
-	function moveFromTraining(employee) {
-
+	var divisionInfo = [{
+		name: 'PogFarms'
+	}, {
+		name: 'PogEats'
+	}, {
+		name: "PogPlaces"
+	}];
+	var officeInfo = {
+		"PogFarms": [],
+		"PogEats": [],
+		"PogPlaces": []
 	}
 
-	function grabOfficeData(division, officeInfo) {
-		ns.print(` ===== ${division.name} ======`)
-		ns.print(` ===== CITIES ======`)
-		division.cities.forEach(city => {
-			temp3 = division.name
-			//grab office info from each division
-			temp2 = ns.corporation.getOffice(division.name, city);
-			ns.print(temp3)
-			officeInfo.temp3.length > 0 ? officeInfo.temp3.shift() : null
-			officeInfo.temp3.push(temp2)
-		})
-		return officeInfo
-	}
+	// function moveFromTraining(employee) {
 
-
+	// }
 
 	while (true) {
 		await ns.sleep(1000)
@@ -56,10 +53,8 @@ export async function main(ns) {
 		//now get office info -- then start implementing solutions
 		ns.print(`=== Implementing through divisions for city-office data ===`)
 		divisionInfo.forEach(division => {
-			grabOfficeData(division, officeInfo)
+			ns.print(grabOfficeData(division))
 		})
-
 		ns.print(officeInfo);
 	}
-	// ns.print(divisionInfo)
 }
