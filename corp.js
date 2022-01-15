@@ -1,13 +1,10 @@
-import grabOfficeData from 'officeInfo.js';
+import {grabOfficeData} from 'officeInfo.js';
 /** @param {NS} ns **/
 export async function main(ns) {
-
-	ns.clearLog();
 	ns.tail();
 
-
 	var temp, temp2, temp3;
-	var divisionsArray = ["PogFarms", "PogEats", "PogPlaces"]
+	var divisionsArray = ["PogFarms", "PogEats", "PogPlaces"];
 	var divisionInfo = [{
 		name: 'PogFarms'
 	}, {
@@ -19,15 +16,12 @@ export async function main(ns) {
 		"PogFarms": [],
 		"PogEats": [],
 		"PogPlaces": []
-	}
-
-	// function moveFromTraining(employee) {
-
-	// }
+	};
 
 	while (true) {
 		await ns.sleep(1000)
 		ns.clearLog();
+
 		var corporation = ns.corporation.getCorporation();
 		ns.print("===== CORPORATION INFORMATION =====")
 		ns.print("===== NAME ===== ", corporation.name, " =====")
@@ -52,8 +46,10 @@ export async function main(ns) {
 
 		//now get office info -- then start implementing solutions
 		ns.print(`=== Implementing through divisions for city-office data ===`)
-		divisionInfo.forEach(division => {
-			ns.print(grabOfficeData(division))
+		divisionInfo.forEach(async division => {
+			ns.print(`==== DIVISION ==== ${division.name}`)
+			temp2 = await grabOfficeData(division, officeInfo);
+			ns.print(temp2)
 		})
 		ns.print(officeInfo);
 	}
