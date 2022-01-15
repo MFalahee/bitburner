@@ -1,7 +1,7 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
 	ns.tail();
-
+	ns.clearLog();
 	var temp, temp2, temp3;
 	var divisionsArray = ["PogFarms", "PogEats", "PogPlaces"];
 	var divisionInfo = [{
@@ -18,19 +18,24 @@ export async function main(ns) {
 	};
 
 
-	function grabOfficeData(division, officeInfo) {
+	function grabOfficeData(divInfo, offInfo) {
 		var temp2, temp3;
 		ns.print("INSIDE FUNC")
-		temp3 = division.name
-		ns.print("DIVISION = ", temp3, " with ", division.cities.length, ' cities')
-		division.cities.forEach(city => {
+		temp3 = divInfo.name
+		ns.print("DIVISION = ", temp3, " with ", divInfo.cities.length, ' cities')
+		divInfo.cities.forEach(city => {
 			//grab office info from each division
-			temp2 = ns.corporation.getOffice(division.name, city);
-			ns.print(`${temp3} under investigation. Officeinfo.temp3 is ${officeInfo.temp3} long, while there are 6 cities.`)
-			if (officeInfo.temp3.length === division.cities.length) officeInfo.temp3.shift()
-			officeInfo.temp3.push(temp2)
+			temp2 = ns.corporation.getOffice(divInfo.name, city);
+			// ns.print(`${temp3} under investigation. Officeinfo.temp3 is ${offInfo.temp3} long, while there are 6 cities.`)
+			// ns.print("Inside for Each --> ", city)
+			// ns.print("temp3  === ", temp3)
+			// ns.print("offInfo.temp3 === ", offInfo[temp3])
+			// ns.print("offInfo.temp3.length === ", offInfo[temp3].length)
+			
+			if (offInfo[temp3].length === divInfo.cities.length) offInfo[temp3].shift()
+			offInfo[temp3].push(temp2)
 		})
-		return officeInfo
+		return offInfo
 	}
 
 	while (true) {
@@ -61,11 +66,19 @@ export async function main(ns) {
 
 		//now get office info -- then start implementing solutions
 		ns.print(`=== Implementing through divisions for city-office data ===`)
-		divisionInfo.forEach(division => {
+		divisionInfo.forEach(div => {
 			ns.print(`==== DIVISION ====`)
-			temp2 = grabOfficeData(division, officeInfo);
+			temp2 = grabOfficeData(div, officeInfo);
 			officeInfo = temp2;
-			ns.print(officeInfo)
+		})
+		
+		divisionsArray.forEach(division => {
+			ns.print("")
+			ns.print("division ==== ", division)
+			ns.print(officeInfo[division])
+
+			ns.print("")
+			ns.print("")
 		})
 	}
 }
