@@ -1,5 +1,4 @@
-import {grabOfficeData} from 'officeInfo.js';
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 export async function main(ns) {
 	ns.tail();
 
@@ -13,14 +12,30 @@ export async function main(ns) {
 		name: "PogPlaces"
 	}];
 	var officeInfo = {
-		"PogFarms": [],
-		"PogEats": [],
-		"PogPlaces": []
+		"PogFarms": [1],
+		"PogEats": [1],
+		"PogPlaces": [1]
 	};
+
+
+	function grabOfficeData(division, officeInfo) {
+		var temp2, temp3;
+		ns.print("INSIDE FUNC")
+		temp3 = division.name
+		ns.print("DIVISION = ", temp3, " with ", division.cities.length, ' cities')
+		division.cities.forEach(city => {
+			//grab office info from each division
+			temp2 = ns.corporation.getOffice(division.name, city);
+			ns.print(`${temp3} under investigation. Officeinfo.temp3 is ${officeInfo.temp3} long, while there are 6 cities.`)
+			if (officeInfo.temp3.length === division.cities.length) officeInfo.temp3.shift()
+			officeInfo.temp3.push(temp2)
+		})
+		return officeInfo
+	}
 
 	while (true) {
 		await ns.sleep(1000)
-		ns.clearLog();
+		// ns.clearLog();
 
 		var corporation = ns.corporation.getCorporation();
 		ns.print("===== CORPORATION INFORMATION =====")
@@ -46,11 +61,11 @@ export async function main(ns) {
 
 		//now get office info -- then start implementing solutions
 		ns.print(`=== Implementing through divisions for city-office data ===`)
-		divisionInfo.forEach(async division => {
-			ns.print(`==== DIVISION ==== ${division.name}`)
-			temp2 = await grabOfficeData(division, officeInfo);
-			ns.print(temp2)
+		divisionInfo.forEach(division => {
+			ns.print(`==== DIVISION ====`)
+			temp2 = grabOfficeData(division, officeInfo);
+			officeInfo = temp2;
+			ns.print(officeInfo)
 		})
-		ns.print(officeInfo);
 	}
 }

@@ -1,9 +1,11 @@
 /** @param {NS} ns **/
-export async function grabOfficeData(division, officeInfo) {
+async function grabOfficeData(division, officeInfo) {
+    ns.clearLog()
     ns.print(` ===== ${division.name} ======`)
     ns.print(` ===== CITIES ======`)
     var temp2, temp3;
     ns.print("INSIDE FUNC")
+
     division.cities.forEach(async city => {
         temp3 = division.name
         //grab office info from each division
@@ -14,4 +16,9 @@ export async function grabOfficeData(division, officeInfo) {
         officeInfo.temp3.push(temp2)
     })
     return officeInfo
+}
+
+export async function main(ns) {
+    ns.print("=============== Inside MAIN!!!!!! ===================")
+   return grabOfficeData(arg[0], arg[1])
 }
