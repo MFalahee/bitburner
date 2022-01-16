@@ -28,27 +28,6 @@ export async function main(ns) {
 
 	keep track of total # of employees and display the number every cycle
 
-	*/
-	/*{
-		"loc": "Chongqing",
-		"size": 66,
-		"minEne": 0,
-		"maxEne": 110,
-		"minHap": 0,
-		"maxHap": 110,
-		"maxMor": 110,
-		"employees": ["saljdflaj", "jhliasdjh"]
-		"employeeProd": {
-			"Operations": 56218.29797133367,
-			"Engineer": 40080.32623753379,
-			"Business": 8754.062585613612,
-			"Management": 32970.71316689903,
-			"Research & Development": 0,
-			"Training": 0
-		}
-	}
-	**/
-
 
 	/* OFFICE FUNCs 
 	===============================================================================
@@ -85,24 +64,26 @@ export async function main(ns) {
 		var totalEmployees = 0,
 			employeesMoved = 0,
 			employeesIgnored = 0
+		var researchMode = false;
 		var currentRatio, prevRatio, totalPower,
 			opPower, engPower, busPower, mngPower, resPower
 		var jobsArr = ["Operations", "Engineer", "Business", "Management", "Research & Development", "Training"]
-		//how am I going to choose to assign an employee to a job? Idc about stats or anything at this point.
-		//an approximate ideal ratio for jobs? 10-7-3-8 Op Eng Bus Mngr maybe?
+
 		ns.print(`======== lets get these lazy peons @ ${name} working! =======`)
-		// ns.print(`Looks like there are ${offices.length} offices to audit.`)
 
 		while (c1 < offices.length) {
-			//RESETS FOR OFFICE
-
+			// ns.clearLog()
+			//RESETS FOR EACH OFFICE
 			var currOffice = {
 				...offices[c1]
 			}
 			var tempPower = 0;
-			totalPower = 0, c2 = 0; c3 = 0; toMoveList = []
+			totalPower = 0, c2 = 0;
+			c3 = 0;
+			toMoveList = []
+			ns.print("")
 			ns.print(`======= Current office is: ${currOffice.loc} ========`)
-			ns.print(`==== SIZE: ${currOffice.size} ==== minENERGY: ${currOffice.minEne} ==== minHAPPINESS: ${currOffice.minHap}`)
+			ns.print(`---- SIZE: ${currOffice.size} ---- minENERGY: ${currOffice.minEne} ---- minHAPPINESS: ${currOffice.minHap} ----`)
 			employeeList = currOffice.employees
 			totalEmployees += employeeList.length
 
@@ -111,6 +92,7 @@ export async function main(ns) {
 			// check ratio
 
 			while (c2 < jobsArr.length) {
+				//RESETS FOR EACH JOB TYPE
 				var job = jobsArr[c2]
 				// ns.print(currOffice.employeeProd)
 				// ns.print(`job is: ${Math.floor(currOffice.employeeProd[job])} ${job}`)
@@ -138,66 +120,207 @@ export async function main(ns) {
 						totalPower += resPower
 						break;
 					default:
-						ns.print("This shouldn't happen! job is: ", job)
+						ns.print("This shouldn't happen! JOB SWITCH CASE ERROR. job is: ", job)
 				}
 				c2++
 			}
 
 			while (c3 < employeeList.length) {
-				//quick loop to see who is training/unassigned and NEEDS to be moved.
+				//quick loop to see who is training/unassigned and NEEDS to be moved in each office. var toMoveList is reset for each office and NOT stored across offices
 				currentEmployee = ns.corporation.getEmployee(name, currOffice.loc, employeeList[c3])
 				if (currentEmployee.pos === 'Unassigned' || currentEmployee.pos === 'Training') {
 					toMoveList.push(currentEmployee)
+				} else {
+					employeesIgnored++
 				}
 				c3++
 			}
 
-			var avgPower
-			toMoveList ? avgPower = Math.floor(totalPower/(employeeList.length - toMoveList.length)) : null
-			ns.print(`=== TOTAL PWR: ${totalPower} `)
-			ns.print(`=== OP: ${opPower} == ENG: ${engPower} == BUS: ${busPower} == MNG: ${mngPower}`)
-			ns.print(`This office has ${(toMoveList) ? toMoveList.length: null} employees to move`)
-			ns.print(`On avg, each active employee provides: ${avgPower} power`)
+			var powerInd = {
+				'opPower': opPower,
+				'engPower': engPower,
+				'busPower': busPower,
+				'mngPower': mngPower,
+				'resPower': resPower,
+				'totalPower': totalPower
+			}
 
-			/* Now that we have all of the employee information and relative power, we need to sort through the unassigned employees 
-			 relevant variables: opPower, engPower, busPower, mngPower, resPower, toMoveList, currentEmployee
-			 Office obj - {loc, size, minEne, maxEne, minHap, maxHap, maxMor, employees, employeeProd}
-			
-			 interface Employee {
-    				/** Name of the employee */
-					// name: string;
-					/** Morale */
-					// mor: number;
-					/** Happiness */
-					// hap: number;
-					/** Energy */
-					// ene: number;
-					// int: number;
-					// cha: number;
-					// exp: number;
-					// cre: number;
-					// eff: number;
-					/** Salary */
-					// sal: number;
-					/** City */
-					// loc: string;
-					/** Current job */
-					// pos: string;
-					//   }
+			var avgPower, employeesWorking, employeeDist = []
+			toMoveList ? employeesWorking = (employeeList.length - toMoveList.length) : employeesWorking = employeeList.length
+			avgPower = Math.floor(totalPower / employeesWorking)
+			ns.print(`=== TOTAL PWR: ${totalPower} ===`)
+			ns.print("")
+			ns.print(`--- OP: ${opPower} -- ENG: ${engPower} -- BUS: ${busPower} -- MNG: ${mngPower} ---`)
+			ns.print("")
+			ns.print(`--- This office has ${(toMoveList) ? toMoveList.length: null} employees to move ---`)
+			ns.print(`--- There are ${employeesWorking} employees that don't suck`)
+			ns.print(`--- Avg Power/Employee ${avgPower} ---`)
 
-			/*
 
-			size could be used to figure out an avg for totalPower and how many employees are in each category-- but we'd need to know how many are training b/c
-			the employee data doesn't actually show how many are where.
+			//find correct employee ratios
+			Object.keys(powerInd).forEach(key => {
+				var currentCount, temp = 0;
+				// ns.print(`=== the current Department is: ${key} ===`)
+				key != 'totalPower' ? currentCount = Math.round(powerInd[key] / avgPower) : null
+				// ns.print(`${currentCount} employees working in ${key}`)
+				ns.print(powerInd[key])
+				//Now we apply the ratio... TEMP = #of employees NEEDED TO FILL TO HIT RATIO, store in powerInd[key] as temp
+				switch (key) {
+					case 'opPower':
+						temp = (Math.floor(currOffice.size * 0.3) - currentCount)
+						break;
+					case 'engPower':
+						temp = (Math.floor(currOffice.size * 0.3) - currentCount)
+						break;
+					case 'busPower':
+						temp = (Math.floor(currOffice.size * 0.1) - currentCount)
+						break;
+					case 'mngPower':
+						temp = (Math.floor(currOffice.size * 0.3) - currentCount)
+						break;
+					case 'resPower':
+						break;
+					case 'totalPower':
+						break;
+				}
 
-			*/
+				powerInd[key] = [powerInd[key], currentCount, temp]
+				var employeeStats = [
+					'int',
+					'cha',
+					'cre',
+					'eff',
+				]
+
+				if (toMoveList) {
+					while (toMoveList.length > 0) {
+						var highSkill = 0,
+							lessHighSkill = 0,
+							SkillName, SkillName2, career
+						currentEmployee = toMoveList.pop()
+						employeeStats.forEach(stat => {
+							if (currentEmployee[stat] > highSkill) {
+								highSkill = currentEmployee[stat]
+								SkillName = stat
+							} else if (currentEmployee[stat] <= highSkill && currentEmployee[stat] > lessHighSkill) {
+								lessHighSkill = currentEmployee[stat]
+								SkillName2 = stat
+							}
+						})
+
+						// this is some bullshit but I can't think of a better way to do this right now.
+						switch (SkillName) {
+							case 'int':
+								if (researchMode) {
+									//send scientists!
+								} else {
+									switch (SkillName2) {
+										case "cha":
+											career = "M"
+											//manager
+											break
+										case "cre":
+											career = "En"
+											//engineer
+											break
+										case "eff":
+											career = "Op"
+											//operations
+											break
+									}
+								}
+								break
+							case 'cha':
+								switch (SkillName2) {
+									case "int":
+										career = "M"
+										// manager
+										break
+									case "cre":
+										career = "B"
+										// business
+										break
+									case "eff":
+										career = "B"
+										// business
+										break
+								}
+								break
+							case 'cre':
+								switch (SkillName2) {
+									case "cha":
+										career = "B"
+										// business
+										break
+									case "int":
+										career = "B"
+										// business
+										break
+									case "eff":
+										career = "Op"
+										// operations
+										break
+								}
+								break
+							case 'eff':
+								switch (SkillName2) {
+									case "cha":
+										career = "M"
+										// manager
+										break
+									case "cre":
+										career = "En"
+										// engineer
+										break
+									case "int":
+										career = "Op"
+										// operations
+										break
+								}
+								break
+						}
+						var blah;
+						ns.print(`==================== CHECKING powerInd ==================`)
+						ns.print(powerInd["opPower"][0])
+						ns.print(powerInd["opPower"][1])
+						ns.print(powerInd["opPower"][2])
+						ns.print(powerInd["opPower"])
+						ns.print(powerInd)
+						ns.print(`========================================================`)
+						// we cascade assign here
+						switch (career) {
+							case "Op":
+								if (powerInd["opPower"][2] > 0) {
+
+								}
+							case "En":
+								blah = powerInd['engPower']
+							case "M":
+								blah = powerInd['mngPower']
+							case "B":
+								blah = powerInd['busPower']
+								break
+							case "Re":
+								blah = powerInd['resPower']
+								break
+							default:
+								ns.print("default case?")
+						}
+
+						ns.print(`--- ${currentEmployee.name} --- ${Math.floor(highSkill)} ${SkillName} ${Math.floor(lessHighSkill)} ${SkillName2} ---`)
+
+					}
+				}
+				// ns.print(powerInd[key])
+			})
+
 			// ns.print(currOffice)
 			// ns.print(`Total power for this branch is: ${totalPower}`)
 			// ns.print(`Current Employee tally: ${totalEmployees}`)()
 			c1++
 		}
 
-		ns.print(`===== THERE ARE ${totalEmployees} FOLKS EMPLOYED AT ${name} =====`)
+		// ns.print(`===== THERE ARE ${totalEmployees} FOLKS EMPLOYED AT ${name} =====`)
 	}
 
 	/* ============================================================================ */
@@ -241,17 +364,13 @@ export async function main(ns) {
 		})
 
 		/* commented out for clarity in logs
-		divisionsArray.forEach(division => {
-		
+		divisionsArray.forEach(division => 
 			ns.print("")
 			ns.print("division ==== ", division)
 			ns.print(`${officeInfo[division].length} offices accounted for currently.`)
-
 			ns.print("")
 			ns.print("")
-
-			ns.print("Moving onto role delegation.")
-			
+			ns.print("Moving onto role delegation.")	
 		})
 		*/
 
