@@ -68,9 +68,10 @@ export async function main(ns) {
 		var currentRatio, prevRatio, totalPower,
 			opPower, engPower, busPower, mngPower, resPower
 		var jobsArr = ["Operations", "Engineer", "Business", "Management", "Research & Development", "Training"]
-
+		var employeeStats = ['int', 'cha', 'cre', 'eff']
+		ns.print(`========NEW DIVISION===================================`)
 		ns.print(`======== lets get these lazy peons @ ${name} working! =======`)
-
+		
 		while (c1 < offices.length) {
 			// ns.clearLog()
 			//RESETS FOR EACH OFFICE
@@ -81,16 +82,9 @@ export async function main(ns) {
 			totalPower = 0, c2 = 0;
 			c3 = 0;
 			toMoveList = []
-			ns.print("")
-			ns.print(`======= Current office is: ${currOffice.loc} ========`)
-			ns.print(`---- SIZE: ${currOffice.size} ---- minENERGY: ${currOffice.minEne} ---- minHAPPINESS: ${currOffice.minHap} ----`)
+			ns.print(`-=- OFFICE:${currOffice.loc} SIZE: ${currOffice.size} -=-`)
 			employeeList = currOffice.employees
 			totalEmployees += employeeList.length
-
-			//get total power ratio
-			//probably a way to use the cascade of a switch in my favor here.
-			// check ratio
-
 			while (c2 < jobsArr.length) {
 				//RESETS FOR EACH JOB TYPE
 				var job = jobsArr[c2]
@@ -132,6 +126,9 @@ export async function main(ns) {
 					toMoveList.push(currentEmployee)
 				} else {
 					employeesIgnored++
+					employeeCache[currentEmployee.name] = {
+						...currentEmployee
+					}
 				}
 				c3++
 			}
@@ -145,17 +142,11 @@ export async function main(ns) {
 				'totalPower': totalPower
 			}
 
-			var avgPower, employeesWorking, employeeDist = []
+
+			var avgPower, employeesWorking, employeeDist = [],
+				career
 			toMoveList ? employeesWorking = (employeeList.length - toMoveList.length) : employeesWorking = employeeList.length
 			avgPower = Math.floor(totalPower / employeesWorking)
-			ns.print(`=== TOTAL PWR: ${totalPower} ===`)
-			ns.print("")
-			ns.print(`--- OP: ${opPower} -- ENG: ${engPower} -- BUS: ${busPower} -- MNG: ${mngPower} ---`)
-			ns.print("")
-			ns.print(`--- This office has ${(toMoveList) ? toMoveList.length: null} employees to move ---`)
-			ns.print(`--- There are ${employeesWorking} employees that don't suck`)
-			ns.print(`--- Avg Power/Employee ${avgPower} ---`)
-
 
 			//find correct employee ratios
 			Object.keys(powerInd).forEach(key => {
@@ -163,7 +154,6 @@ export async function main(ns) {
 				// ns.print(`=== the current Department is: ${key} ===`)
 				key != 'totalPower' ? currentCount = Math.round(powerInd[key] / avgPower) : null
 				// ns.print(`${currentCount} employees working in ${key}`)
-				ns.print(powerInd[key])
 				//Now we apply the ratio... TEMP = #of employees NEEDED TO FILL TO HIT RATIO, store in powerInd[key] as temp
 				switch (key) {
 					case 'opPower':
@@ -185,146 +175,166 @@ export async function main(ns) {
 				}
 
 				powerInd[key] = [powerInd[key], currentCount, temp]
-				var employeeStats = [
-					'int',
-					'cha',
-					'cre',
-					'eff',
-				]
-
-				if (toMoveList) {
-					while (toMoveList.length > 0) {
-						var highSkill = 0,
-							lessHighSkill = 0,
-							SkillName, SkillName2, career
-						currentEmployee = toMoveList.pop()
-						employeeStats.forEach(stat => {
-							if (currentEmployee[stat] > highSkill) {
-								highSkill = currentEmployee[stat]
-								SkillName = stat
-							} else if (currentEmployee[stat] <= highSkill && currentEmployee[stat] > lessHighSkill) {
-								lessHighSkill = currentEmployee[stat]
-								SkillName2 = stat
-							}
-						})
-
-						// this is some bullshit but I can't think of a better way to do this right now.
-						switch (SkillName) {
-							case 'int':
-								if (researchMode) {
-									//send scientists!
-								} else {
-									switch (SkillName2) {
-										case "cha":
-											career = "M"
-											//manager
-											break
-										case "cre":
-											career = "En"
-											//engineer
-											break
-										case "eff":
-											career = "Op"
-											//operations
-											break
-									}
-								}
-								break
-							case 'cha':
-								switch (SkillName2) {
-									case "int":
-										career = "M"
-										// manager
-										break
-									case "cre":
-										career = "B"
-										// business
-										break
-									case "eff":
-										career = "B"
-										// business
-										break
-								}
-								break
-							case 'cre':
-								switch (SkillName2) {
-									case "cha":
-										career = "B"
-										// business
-										break
-									case "int":
-										career = "B"
-										// business
-										break
-									case "eff":
-										career = "Op"
-										// operations
-										break
-								}
-								break
-							case 'eff':
-								switch (SkillName2) {
-									case "cha":
-										career = "M"
-										// manager
-										break
-									case "cre":
-										career = "En"
-										// engineer
-										break
-									case "int":
-										career = "Op"
-										// operations
-										break
-								}
-								break
-						}
-						var blah;
-						ns.print(`==================== CHECKING powerInd ==================`)
-						ns.print(powerInd["opPower"][0])
-						ns.print(powerInd["opPower"][1])
-						ns.print(powerInd["opPower"][2])
-						ns.print(powerInd["opPower"])
-						ns.print(powerInd)
-						ns.print(`========================================================`)
-						// we cascade assign here
-						switch (career) {
-							case "Op":
-								if (powerInd["opPower"][2] > 0) {
-
-								}
-							case "En":
-								blah = powerInd['engPower']
-							case "M":
-								blah = powerInd['mngPower']
-							case "B":
-								blah = powerInd['busPower']
-								break
-							case "Re":
-								blah = powerInd['resPower']
-								break
-							default:
-								ns.print("default case?")
-						}
-
-						ns.print(`--- ${currentEmployee.name} --- ${Math.floor(highSkill)} ${SkillName} ${Math.floor(lessHighSkill)} ${SkillName2} ---`)
-
-					}
-				}
+				// ns.print(`--- ${currentEmployee.name} --- ${Math.floor(highSkill)} ${SkillName} ${Math.floor(lessHighSkill)} ${SkillName2} ---`)
 				// ns.print(powerInd[key])
 			})
 
-			// ns.print(currOffice)
-			// ns.print(`Total power for this branch is: ${totalPower}`)
-			// ns.print(`Current Employee tally: ${totalEmployees}`)()
-			c1++
+			// ns.print(`==================== CHECKING powerInd ==================`)
+			// ns.print(powerInd["opPower"][0])
+			// ns.print(powerInd["opPower"][1])
+			// ns.print(powerInd["opPower"][2])
+			// ns.print(powerInd["opPower"])
+			// ns.print(powerInd)
+			// ns.print(`========================================================`)
+
+			if (toMoveList) {
+
+				while (toMoveList.length > 0) {
+					var highSkill = 0,
+						lessHighSkill = 0,
+						SkillName, SkillName2
+					currentEmployee = toMoveList.pop()
+					employeeStats.forEach(stat => {
+						if (currentEmployee[stat] > highSkill) {
+							highSkill = currentEmployee[stat]
+							SkillName = stat
+						} else if (currentEmployee[stat] <= highSkill && currentEmployee[stat] > lessHighSkill) {
+							lessHighSkill = currentEmployee[stat]
+							SkillName2 = stat
+						}
+					})
+
+					// this is some bullshit but I'm lost on a better way currently
+					switch (SkillName) {
+						case 'int':
+							if (researchMode) {
+								//send scientists!
+							} else {
+								switch (SkillName2) {
+									case "cha":
+										career = "M"
+										//manager
+										break
+									case "cre":
+										career = "En"
+										//engineer
+										break
+									case "eff":
+										career = "Op"
+										//operations
+										break
+								}
+							}
+							break
+						case 'cha':
+							switch (SkillName2) {
+								case "int":
+									career = "M"
+									// manager
+									break
+								case "cre":
+									career = "B"
+									// business
+									break
+								case "eff":
+									career = "B"
+									// business
+									break
+							}
+							break
+						case 'cre':
+							switch (SkillName2) {
+								case "cha":
+									career = "B"
+									// business
+									break
+								case "int":
+									career = "B"
+									// business
+									break
+								case "eff":
+									career = "Op"
+									// operations
+									break
+							}
+							break
+						case 'eff':
+							switch (SkillName2) {
+								case "cha":
+									career = "M"
+									// manager
+									break
+								case "cre":
+									career = "En"
+									// engineer
+									break
+								case "int":
+									career = "Op"
+									// operations
+									break
+							}
+							break
+					}
+
+
+					var blah
+					// we cascade assign here
+					switch (career) {
+						case "B":
+							if (powerInd['busPower'][2] > 0) {
+								// ns.print(`Assigning ${currentEmployee.name} to Business`)
+								employeesMoved++
+								ns.corporation.assignJob(name, currOffice.loc, currentEmployee.name, "Business")
+								powerInd['busPower'][2]--
+								break
+							}
+							case "Op":
+								if (powerInd["opPower"][2] > 0) {
+									// ns.print(`Assigning ${currentEmployee.name} to Operations`)
+									employeesMoved++
+									ns.corporation.assignJob(name, currOffice.loc, currentEmployee.name, "Operations")
+									powerInd["opPower"][2]--
+									break
+								}
+								case "En":
+
+									if (powerInd["engPower"][2] > 0) {
+										// ns.print(`Assigning ${currentEmployee.name} to Engineering`)
+										employeesMoved++
+										ns.corporation.assignJob(name, currOffice.loc, currentEmployee.name, "Engineer")
+										powerInd["engPower"][2]--
+										break
+									}
+									case "M":
+										if (powerInd["mngPower"][2] > 0) {
+											// ns.print(`Assigning ${currentEmployee.name} to Management`)
+											employeesMoved++
+											ns.corporation.assignJob(name, currOffice.loc, currentEmployee.name, "Management")
+											powerInd["mngPower"][2]--
+											break
+										}
+										case "Re":
+											if (powerInd['resPower'][2] > 0) {
+												// ns.print(`Assigning ${currentEmployee.name} to Research`)
+												employeesMoved++
+												ns.corporation.assignJob(name, currOffice.loc, currentEmployee.name, "Research & Development")
+												powerInd['resPower'][2]--
+												break
+											}
+					}
+
+				}
+				c1++
+			}
+
+		if (c1 === offices.length) {
+			ns.print(`===== THERE ARE ${totalEmployees} FOLKS EMPLOYED AT ${name} =====`)
+			ns.print(`======= WE MOVED ${employeesMoved} EMPLOYEES THIS CYCLE ==========`)
+			ns.print(`======= WE LET ${employeesIgnored} CHILL =======`)
 		}
-
-		// ns.print(`===== THERE ARE ${totalEmployees} FOLKS EMPLOYED AT ${name} =====`)
+		}
+		/* ============================================================================ */
 	}
-
-	/* ============================================================================ */
-
 	while (true) {
 
 		// ns.clearLog();
@@ -376,7 +386,7 @@ export async function main(ns) {
 
 		// first solution is simply to assign jobless/training employees to jobs
 		divisionsArray.forEach(division => {
-			getEmployeesWorking(officeInfo[division], division)
+			getEmployeesWorking(officeInfo[division], division, {})
 		})
 		await ns.sleep(1000)
 	}
