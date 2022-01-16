@@ -36,25 +36,15 @@ export async function main(ns) {
 	function grabOfficeData(divInfo, offInfo) {
 		var temp2, temp3;
 		temp3 = divInfo.name
-		// ns.print("DIVISION = ", temp3, " with ", divInfo.cities.length, ' cities')
 		divInfo.cities.forEach(city => {
 			//grab office info from each division
 			temp2 = ns.corporation.getOffice(divInfo.name, city);
-			// ns.print(`${temp3} under investigation. Officeinfo.temp3 is ${offInfo.temp3} long, while there are 6 cities.`)
-			// ns.print("Inside for Each --> ", city)
-			// ns.print("temp3  === ", temp3)
-			// ns.print("offInfo.temp3 === ", offInfo[temp3])
-			// ns.print("offInfo.temp3.length === ", offInfo[temp3].length)
-
-
 			//this replaces old info with new, in theory. 
 			if (offInfo[temp3].length === divInfo.cities.length) offInfo[temp3].shift()
 			offInfo[temp3].push(temp2)
 		})
 		return offInfo
 	}
-
-
 
 	function getEmployeesWorking(offices, name, employeeCache) {
 		var c1 = 0,
@@ -69,9 +59,9 @@ export async function main(ns) {
 			opPower, engPower, busPower, mngPower, resPower
 		var jobsArr = ["Operations", "Engineer", "Business", "Management", "Research & Development", "Training"]
 		var employeeStats = ['int', 'cha', 'cre', 'eff']
-		ns.print(`========NEW DIVISION===================================`)
-		ns.print(`======== lets get these lazy peons @ ${name} working! =======`)
-		
+		ns.print(`========DIVISION EMPLOYMENT PROTOCOL===================================`)
+		ns.print(`======== ${name} ==== lets get these lazy peons working! =======`)
+
 		while (c1 < offices.length) {
 			// ns.clearLog()
 			//RESETS FOR EACH OFFICE
@@ -88,8 +78,6 @@ export async function main(ns) {
 			while (c2 < jobsArr.length) {
 				//RESETS FOR EACH JOB TYPE
 				var job = jobsArr[c2]
-				// ns.print(currOffice.employeeProd)
-				// ns.print(`job is: ${Math.floor(currOffice.employeeProd[job])} ${job}`)
 				switch (job) {
 					case "Training":
 						break;
@@ -350,7 +338,7 @@ export async function main(ns) {
 		ns.print("====== DIVISION INFO  =======")
 		divisionsArray.forEach(division => {
 			temp = ns.corporation.getDivision(division)
-			/* commented out for clarity in logs
+			
 			ns.print(`====== NAME ===== ${temp.name} =====`)
 			ns.print(`====== TYPE ===== ${temp.type} =====`)
 			ns.print(`====== REVENUE ===== ${temp.thisCycleRevenue} =====`)
@@ -358,7 +346,6 @@ export async function main(ns) {
 			ns.print(`====== RESEARCH ===== ${temp.research} =====`)
 			ns.print(`====== FACILITIES IN  ${temp.cities.length} CITIES ====`)
 			ns.print("\b") 
-			*/
 
 			//update division info
 			divisionInfo.shift()
