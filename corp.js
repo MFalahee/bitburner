@@ -59,8 +59,8 @@ export async function main(ns) {
 			opPower, engPower, busPower, mngPower, resPower
 		var jobsArr = ["Operations", "Engineer", "Business", "Management", "Research & Development", "Training"]
 		var employeeStats = ['int', 'cha', 'cre', 'eff']
-		ns.print(`========DIVISION EMPLOYMENT PROTOCOL===================================`)
-		ns.print(`======== ${name} ==== lets get these lazy peons working! =======`)
+		ns.print(`-=-=-=- DIVISION EMPLOYMENT PROTOCOL-=-=-=-`)
+		ns.print(`-=--=-=- ${name} -=- lets get these lazy peons working! -=-=-=-`)
 
 		while (c1 < offices.length) {
 			// ns.clearLog()
@@ -316,36 +316,48 @@ export async function main(ns) {
 			}
 
 		if (c1 === offices.length) {
-			ns.print(`===== THERE ARE ${totalEmployees} FOLKS EMPLOYED AT ${name} =====`)
-			ns.print(`======= WE MOVED ${employeesMoved} EMPLOYEES THIS CYCLE ==========`)
-			ns.print(`======= WE LET ${employeesIgnored} CHILL =======`)
+			ns.print(`-=--=- THERE ARE ${totalEmployees} FOLKS EMPLOYED AT ${name} -=--=-`)
+			ns.print(`-=--=- MOVED: ${employeesMoved} :: IGNORED: ${employeesIgnored} -=--=-`)
 		}
 		}
 		/* ============================================================================ */
 	}
+
+	function buyOfficeSpace(offices, name) {
+		var smallestOffice = null, counter = 0, smallestOfficeLoc = ''
+		while (counter < offices.length) {
+			if (offices[counter].size < smallestOffice || smallestOffice === null) {
+				smallestOffice = offices[counter].size 
+				smallestOfficeLoc = offices[counter].loc
+			}
+			counter++
+		}
+		// ns.print(`Attempting to upgrade from ${smallestOffice} employees to ${Math.floor((smallestOffice)/10) + smallestOffice} at ${smallestOfficeLoc}`)
+		ns.corporation.upgradeOfficeSize(name, smallestOfficeLoc, Math.floor((smallestOffice)/10))
+		var j = ns.corporation.getOffice(name, smallestOfficeLoc)
+		return [((j.size > smallestOffice) ? true : false), smallestOfficeLoc]
+	}
 	while (true) {
 
-		// ns.clearLog();
+		ns.clearLog();
 
 		var corporation = ns.corporation.getCorporation();
-		/*	commented out for clarity in logs
-		ns.print("===== CORPORATION INFORMATION =====")
-		ns.print("===== NAME ===== ", corporation.name, " =====")
-		ns.print("===== CASH ===== ", corporation.funds < 10000000000 ? corporation.funds : "LOTS!", " =====")
-		ns.print("===== PRICE ===== ", corporation.sharePrice, " ====== ")
-		 */
-
-		ns.print("====== DIVISION INFO  =======")
+		ns.print(`-=-=-=-CORPORATION INFORMATION-=-=-=-`)
+		ns.print(`-=- NAME :: ${corporation.name}`)
+		ns.print(`-=-  CASH:: ${Math.floor(corporation.funds/1000000)}M -=-`)
+		ns.print(`-=-  STOCK :: ${Math.floor(corporation.sharePrice)/1000}K -=-`)
+ 
+		ns.print(`-=-=-=-   DIVISION INFO  -=-=-=-`)
 		divisionsArray.forEach(division => {
 			temp = ns.corporation.getDivision(division)
 			
-			ns.print(`====== NAME ===== ${temp.name} =====`)
-			ns.print(`====== TYPE ===== ${temp.type} =====`)
-			ns.print(`====== REVENUE ===== ${temp.thisCycleRevenue} =====`)
-			ns.print(`====== EXPENSES ===== ${temp.thisCycleExpenses} =====`)
-			ns.print(`====== RESEARCH ===== ${temp.research} =====`)
-			ns.print(`====== FACILITIES IN  ${temp.cities.length} CITIES ====`)
-			ns.print("\b") 
+			// ns.print(`====== NAME ===== ${temp.name} =====`)
+			// ns.print(`====== TYPE ===== ${temp.type} =====`)
+			// ns.print(`====== REVENUE ===== ${temp.thisCycleRevenue} =====`)
+			// ns.print(`====== EXPENSES ===== ${temp.thisCycleExpenses} =====`)
+			// ns.print(`====== RESEARCH ===== ${temp.research} =====`)
+			// ns.print(`====== FACILITIES IN  ${temp.cities.length} CITIES ====`)
+			// ns.print("\b") 
 
 			//update division info
 			divisionInfo.shift()
@@ -373,8 +385,12 @@ export async function main(ns) {
 
 		// first solution is simply to assign jobless/training employees to jobs
 		divisionsArray.forEach(division => {
-			getEmployeesWorking(officeInfo[division], division, {})
+			getEmployeesWorking(officeInfo[division], division, employeeCache)
+			//buy an office upgrade if possible for the smallest office.
+			buyOfficeSpace(officeInfo[division], division)
 		})
+
+		//now we buy office space?
 		await ns.sleep(1000)
 	}
 }
