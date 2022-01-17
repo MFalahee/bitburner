@@ -26,8 +26,9 @@ export async function main(ns) {
 	//
 	/*
 
-	keep track of total # of employees and display the number every cycle
-
+[done]	keep track of total # of employees and display the number every cycle
+		Buy warehouse upgrades as needed?
+		Attempt to implement Warehouse API?
 
 	/* OFFICE FUNCs 
 	===============================================================================
@@ -72,7 +73,7 @@ export async function main(ns) {
 			totalPower = 0, c2 = 0;
 			c3 = 0;
 			toMoveList = []
-			ns.print(`-=- OFFICE:${currOffice.loc} SIZE: ${currOffice.size} -=-`)
+			ns.print(`-=- OFFICE: ${currOffice.loc} SIZE: ${currOffice.size} -=-`)
 			employeeList = currOffice.employees
 			totalEmployees += employeeList.length
 			while (c2 < jobsArr.length) {
@@ -264,7 +265,6 @@ export async function main(ns) {
 							break
 					}
 
-
 					var blah
 					// we cascade assign here
 					switch (career) {
@@ -316,8 +316,8 @@ export async function main(ns) {
 			}
 
 		if (c1 === offices.length) {
-			ns.print(`-=--=- THERE ARE ${totalEmployees} FOLKS EMPLOYED AT ${name} -=--=-`)
-			ns.print(`-=--=- MOVED: ${employeesMoved} :: IGNORED: ${employeesIgnored} -=--=-`)
+			ns.print(`-=-=-=- ${name} EMPLOYS ${totalEmployees} PEOPLE -=-=-=-`)
+			ns.print(`-=-=-=- MOVED: ${employeesMoved} :: IGNORED: ${employeesIgnored} -=-=-=-`)
 		}
 		}
 		/* ============================================================================ */
