@@ -1,7 +1,5 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
-	ns.tail();
-	ns.clearLog();
 	var temp, temp2, temp3;
 	var divisionsArray = ["PogFarms", "PogEats", "PogPlaces"];
 	var divisionInfo = [{
@@ -17,6 +15,7 @@ export async function main(ns) {
 		"PogPlaces": [1]
 	};
 
+	var officeExpander;
 	var employeeCache = {}
 
 	/// IDEAS FOR BUILDING LATER
@@ -323,6 +322,7 @@ export async function main(ns) {
 		/* ============================================================================ */
 	}
 
+	officeExpander = await ns.prompt('Activate Office Expansion module?');
 	function buyOfficeSpace(offices, name) {
 		var smallestOffice = null, counter = 0, smallestOfficeLoc = ''
 		while (counter < offices.length) {
@@ -337,8 +337,9 @@ export async function main(ns) {
 		var j = ns.corporation.getOffice(name, smallestOfficeLoc)
 		return [((j.size > smallestOffice) ? true : false), smallestOfficeLoc]
 	}
-	while (true) {
 
+	ns.tail()
+	while (true) {
 		ns.clearLog();
 
 		var corporation = ns.corporation.getCorporation();
@@ -387,7 +388,7 @@ export async function main(ns) {
 		divisionsArray.forEach(division => {
 			getEmployeesWorking(officeInfo[division], division, employeeCache)
 			//buy an office upgrade if possible for the smallest office.
-			buyOfficeSpace(officeInfo[division], division)
+			if (officeExpander) buyOfficeSpace(officeInfo[division], division)
 		})
 
 		//now we buy office space?
