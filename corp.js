@@ -17,6 +17,7 @@ export async function main(ns) {
 	//variables for module checks
 	var corpCheck;
 	var divisionCheck;
+	var officeDisplayBool;
 	var officeExpansionModuleBool;
 	var officePurchased = false;
 	var employeeCache = {}
@@ -70,7 +71,7 @@ export async function main(ns) {
 		var jobsArr = ["Operations", "Engineer", "Business", "Management", "Research & Development", "Training"]
 		var employeeStats = ['int', 'cha', 'cre', 'eff']
 		ns.print(`-=-=-=- DIVISION EMPLOYMENT PROTOCOL-=-=-=-`)
-		ns.print(`-=--=-=- ${name} -=- lets get these lazy peons working! -=-=-=-`)
+		ns.print(`-=--=-=- ${name} -=- ZUG ZUG -=-=-=-`)
 
 		while (c1 < offices.length) {
 			//RESETS FOR EACH OFFICE
@@ -321,7 +322,7 @@ export async function main(ns) {
 		}
 		/* ============================================================================ */
 	}
-
+	officeDisplayBool = await ns.prompt(`Activate Office info Display?`)
 	officeExpansionModuleBool = await ns.prompt('Activate Office Expansion module?');
 
 	function buyOfficeSpace(offices, name) {
@@ -353,17 +354,17 @@ export async function main(ns) {
 			ns.print(`-=-  CASH:: ${Math.floor(corporation.funds/1000000)}M -=-`)
 			ns.print(`-=-  STOCK :: ${Math.floor(corporation.sharePrice)/1000}K -=-`)
 
-			ns.print(`-=-=-=-   DIVISION INFO  -=-=-=-`)
+			ns.print(`-=-=-=-   DIVISION  -=-=-=-`)
 			divisionsArray.forEach(division => {
 				temp = ns.corporation.getDivision(division)
 
-				// ns.print(`====== NAME ===== ${temp.name} =====`)
-				// ns.print(`====== TYPE ===== ${temp.type} =====`)
-				// ns.print(`====== REVENUE ===== ${temp.thisCycleRevenue} =====`)
-				// ns.print(`====== EXPENSES ===== ${temp.thisCycleExpenses} =====`)
-				// ns.print(`====== RESEARCH ===== ${temp.research} =====`)
-				// ns.print(`====== FACILITIES IN  ${temp.cities.length} CITIES ====`)
-				// ns.print("\b") 
+				ns.print(`-=-=-=- NAME -=-=-=- ${temp.name} -=-=-=-`)
+				ns.print(`-=-=-=- TYPE -=-=-=- ${temp.type} -=-=-=-`)
+				ns.print(`-=-=-=- REVENUE -=-=-=- ${Math.floor(temp.thisCycleRevenue)} -=-=-=-`)
+				ns.print(`-=-=-=- EXPENSES -=-=-=- ${Math.floor(temp.thisCycleExpenses)} -=-=-=-`)
+				ns.print(`-=-=-=- RESEARCH -=-=-=- ${Math.floor(temp.research)} -=-=-=-`)
+				ns.print(`-=-=-=- CITIES -=-=-=- ${temp.cities.length} -=-=-=-`)
+				ns.print(`-=-=-=--=-=-=--=-=-=--=--=-=-=--=-=-=--=-=-=--=-=-`)
 
 				//update division info
 				divisionInfo.shift()
@@ -373,7 +374,7 @@ export async function main(ns) {
 			//now get office info, attached to division-- 
 			// ns.print(`=== Implementing through divisions for city-office data ===`)
 			divisionInfo.forEach(div => {
-				// ns.print(`==== DIVISION ====`)
+				// ns.print(`-=-=-=- DIVISION -=-=-=-`)
 				temp2 = grabOfficeData(div, officeInfo);
 				officeInfo = temp2;
 			})
@@ -391,22 +392,20 @@ export async function main(ns) {
 
 			divisionsArray.forEach(division => {
 				officePurchased = [false]
-				ns.print(`ofExpander: ${officeExpansionModuleBool}`)
 				//currently only assigns employees that are jobless/unassigned
-				getEmployeesWorking(officeInfo[division], division, employeeCache)
+				getEmployeesWorking(officeInfo[division], division, employeeCache, officeDisplayBool)
 				//buy an office upgrade if possible for the smallest office.
 				if (officeExpansionModuleBool) {
 					officePurchased = buyOfficeSpace(officeInfo[division], division)
-					if (officePurchased[0]) {
-						ns.print(`${division} expanded its office in ${officePurchased[1]} by ${officePurchased[2]} employees`)
+					if (officePurchased[0] && officeDisplayBool) {
+						ns.print(`${division} EXPANDED ${officePurchased[1]} BY ${officePurchased[2]} PEONS`)
 					} else {
-						ns.print(`Not enough funds for an office expansion in this division currently.`)
+						officeDisplayBool ? ns.print(`-=-=-=- NO $ OFFICE UPG -=-=-=-`) : null
 					}
 				} else {
-					ns.print("expansion not enabled")
+					ns.print("-=-=-=--=-=-=--=-=-=--=-=-=-")
 				}
 			})
-
 		}
 		await ns.sleep(1000)
 	}
