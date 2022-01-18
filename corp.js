@@ -28,7 +28,8 @@ export async function main(ns) {
 	//
 
 	/*
-	 Keep track of upgrades/things purchased -- log them out itemized in a command window?  
+	[ ] Keep track of upgrades/things purchased -- log them out itemized in a command window?  
+	[x] rework aesthetics of the display
 	*/ 
 
 
@@ -57,7 +58,7 @@ export async function main(ns) {
 		return offInfo
 	}
 
-	function getEmployeesWorking(offices, name, employeeCache) {
+	function getEmployeesWorking(offices, name, employeeCache, officeDisplayBool) {
 		var c1 = 0,
 			c2 = 0,
 			c3 = 0
@@ -70,8 +71,12 @@ export async function main(ns) {
 			opPower, engPower, busPower, mngPower, resPower
 		var jobsArr = ["Operations", "Engineer", "Business", "Management", "Research & Development", "Training"]
 		var employeeStats = ['int', 'cha', 'cre', 'eff']
-		ns.print(`-=-=-=- DIVISION EMPLOYMENT PROTOCOL-=-=-=-`)
-		ns.print(`-=--=-=- ${name} -=- ZUG ZUG -=-=-=-`)
+
+		if (officeDisplayBool) {
+			name === 'PogFarms' ? ns.print(`-=-=-=- DIVISION EMPLOYMENT PROTOCOL-=-=-=-`) : null
+			ns.print(`-=--=-=- ${name} -=- ZUG ZUG -=-=-=-`)
+		}
+	
 
 		while (c1 < offices.length) {
 			//RESETS FOR EACH OFFICE
@@ -82,7 +87,7 @@ export async function main(ns) {
 			totalPower = 0, c2 = 0;
 			c3 = 0;
 			toMoveList = []
-			ns.print(`-=- OFFICE: ${currOffice.loc} SIZE: ${currOffice.size} -=-`)
+			officeDisplayBool ? ns.print(`-=- OFFICE: ${currOffice.loc} SIZE: ${currOffice.size} -=-`): null 
 			employeeList = currOffice.employees
 			totalEmployees += employeeList.length
 			while (c2 < jobsArr.length) {
@@ -315,7 +320,7 @@ export async function main(ns) {
 				c1++
 			}
 
-			if (c1 === offices.length) {
+			if (c1 === offices.length && officeDisplayBool) {
 				ns.print(`-=-=-=- ${name} EMPLOYS ${totalEmployees} PEOPLE -=-=-=-`)
 				ns.print(`-=-=-=- MOVED: ${employeesMoved} :: IGNORED: ${employeesIgnored} -=-=-=-`)
 			}
@@ -350,21 +355,21 @@ export async function main(ns) {
 		if (corporation) {
 			ns.print(`-=-=-=--=-=-=--=-=-=--=-=-=--=-=-=--=-=-=-`)
 			ns.print(`-=-=-=--=-CORPORATION INFORMATION-=-=-=-=-`)
-			ns.print(`-=- NAME :: ${corporation.name}`)
-			ns.print(`-=-  CASH:: ${Math.floor(corporation.funds/1000000)}M -=-`)
-			ns.print(`-=-  STOCK :: ${Math.floor(corporation.sharePrice)/1000}K -=-`)
+			// ns.print(`-=- NAME :: ${corporation.name}`)
+			// ns.print(`-=-  CASH:: ${Math.floor(corporation.funds/1000000)}M -=-`)
+			// ns.print(`-=-  STOCK :: ${Math.floor(corporation.sharePrice)/1000}K -=-`)
 
 			ns.print(`-=-=-=-   DIVISION  -=-=-=-`)
 			divisionsArray.forEach(division => {
 				temp = ns.corporation.getDivision(division)
 
-				ns.print(`-=-=-=- NAME -=-=-=- ${temp.name} -=-=-=-`)
-				ns.print(`-=-=-=- TYPE -=-=-=- ${temp.type} -=-=-=-`)
-				ns.print(`-=-=-=- REVENUE -=-=-=- ${Math.floor(temp.thisCycleRevenue)} -=-=-=-`)
-				ns.print(`-=-=-=- EXPENSES -=-=-=- ${Math.floor(temp.thisCycleExpenses)} -=-=-=-`)
-				ns.print(`-=-=-=- RESEARCH -=-=-=- ${Math.floor(temp.research)} -=-=-=-`)
-				ns.print(`-=-=-=- CITIES -=-=-=- ${temp.cities.length} -=-=-=-`)
-				ns.print(`-=-=-=--=-=-=--=-=-=--=--=-=-=--=-=-=--=-=-=--=-=-`)
+				// ns.print(`-=-=-=- NAME -=-=-=- ${temp.name} -=-=-=-`)
+				// ns.print(`-=-=-=- TYPE -=-=-=- ${temp.type} -=-=-=-`)
+				// ns.print(`-=-=-=- REVENUE -=-=-=- ${Math.floor(temp.thisCycleRevenue)} -=-=-=-`)
+				// ns.print(`-=-=-=- EXPENSES -=-=-=- ${Math.floor(temp.thisCycleExpenses)} -=-=-=-`)
+				// ns.print(`-=-=-=- RESEARCH -=-=-=- ${Math.floor(temp.research)} -=-=-=-`)
+				// ns.print(`-=-=-=- CITIES -=-=-=- ${temp.cities.length} -=-=-=-`)
+				// ns.print(`-=-=-=--=-=-=--=-=-=--=--=-=-=--=-=-=--=-=-=--=-=-`)
 
 				//update division info
 				divisionInfo.shift()
@@ -380,16 +385,9 @@ export async function main(ns) {
 			})
 
 			/* commented out for clarity in logs
-			divisionsArray.forEach(division => 
-				ns.print("")
-				ns.print("division ==== ", division)
-				ns.print(`${officeInfo[division].length} offices accounted for currently.`)
-				ns.print("")
-				ns.print("")
-				ns.print("Moving onto role delegation.")	
-			})
-			*/
-
+			divisionsArray.forEach(division => {
+				ns.print(`${officeInfo[division].length} offices accounted for currently.`)})
+ 			*/
 			divisionsArray.forEach(division => {
 				officePurchased = [false]
 				//currently only assigns employees that are jobless/unassigned
@@ -400,7 +398,7 @@ export async function main(ns) {
 					if (officePurchased[0] && officeDisplayBool) {
 						ns.print(`${division} EXPANDED ${officePurchased[1]} BY ${officePurchased[2]} PEONS`)
 					} else {
-						officeDisplayBool ? ns.print(`-=-=-=- NO $ OFFICE UPG -=-=-=-`) : null
+						officeDisplayBool ? ns.print(`-=-=-=- NEED $ FOR OFFICE UPG -=-=-=-`) : null
 					}
 				} else {
 					ns.print("-=-=-=--=-=-=--=-=-=--=-=-=-")
