@@ -2,31 +2,23 @@
 export async function main(ns) {
 	ns.disableLog('sleep')
 	var startTime = new Date
-	var temp, temp2, temp3;
+	var temp, temp2
 	var divisionsArray = ["PogFarms", "PogEats", "PogPlaces"];
-	var divisionInfo = [{
-		name: 'PogFarms'
-	}, {
-		name: 'PogEats'
-	}, {
-		name: "PogPlaces"
-	}];
+	var divisionInfo = [];
 	var officeInfo = {
 		"PogFarms": [1],
 		"PogEats": [1],
 		"PogPlaces": [1]
 	};
 	//variables for module checks
-	var corpCheck;
-	var divisionCheck;
 	var officeDisplayBool;
 	var officeExpansionModuleBool;
 	var officePurchased = false;
 	var employeeCache = {}
 
 
-	officeDisplayBool = await ns.prompt(`Activate Office info Display?`)
-	officeExpansionModuleBool = await ns.prompt('Activate Office Expansion module?');
+	// officeDisplayBool = await ns.prompt(`Activate Office info Display?`)
+	// officeExpansionModuleBool = await ns.prompt('Activate Office Expansion module?');
 
 	/// IDEAS FOR BUILDING LATER
 	// 
@@ -52,7 +44,7 @@ export async function main(ns) {
 	*/
 
 	function grabOfficeData(divInfo, offInfo) {
-		var temp2, temp3;
+		let temp2, temp3;
 		temp3 = divInfo.name
 		divInfo.cities.forEach(city => {
 			//grab office info from each division
@@ -182,7 +174,6 @@ export async function main(ns) {
 					case 'totalPower':
 						break;
 				}
-
 				powerInd[key] = [powerInd[key], currentCount, temp]
 				// ns.print(`--- ${currentEmployee.name} --- ${Math.floor(highSkill)} ${SkillName} ${Math.floor(lessHighSkill)} ${SkillName2} ---`)
 				// ns.print(powerInd[key])
@@ -324,10 +315,10 @@ export async function main(ns) {
 				c1++
 			}
 
-			if (c1 === offices.length && officeDisplayBool) {
-				ns.print(`-=-=-=- ${name} EMPLOYS ${totalEmployees} PEOPLE -=-=-=-`)
-				ns.print(`-=-=-=- MOVED: ${employeesMoved} :: IGNORED: ${employeesIgnored} -=-=-=-`)
-			}
+			// if (c1 === offices.length && officeDisplayBool) {
+			// 	ns.print(`-=-=-=- ${name} EMPLOYS ${totalEmployees} PEOPLE -=-=-=-`)
+			// 	ns.print(`-=-=-=- MOVED: ${employeesMoved} :: IGNORED: ${employeesIgnored} -=-=-=-`)
+			// }
 		}
 		/* ============================================================================ */
 	}
@@ -355,35 +346,35 @@ export async function main(ns) {
 		prevCorp = corporation
 	}
 
-	
+
 	while (true) {
 		ns.tail()
+		console.clear();
 		ns.clearLog();
-
 		corporation = ns.corporation.getCorporation();
 		let count = 0;
 		let tmpStack = corporation.divisions
+		console.log(tmpStack);
 		for (let i in tmpStack) {
-			console.log(tmpStack[i])
+			count++;
 		}
-
-		if (corporation) {
-			divisionsArray.forEach(division => {
-				temp = ns.corporation.getDivision(division)
-				divisionInfo.shift()
+		// console.log(`tmpStack Yoooo`)
+		// console.log(tmpStack)
+		if (corporation && tmpStack) {
+			for (let i in tmpStack) {
+				temp = ns.corporation.getDivision(tmpStack[i].name)
 				divisionInfo.push(temp)
-			})
-
-			// https://github.com/alexei/sprintf.js for sprintf formatting 
-			ns.print('-=-====================================================-=-')
-			ns.print((ns.vsprintf(`%s %s %s %s`, ['::', `CORP ::::::::::::::::::::::::::`, () => {
-				return new Date().toString()
-			}, `::::::::::::::::::`])))
+			}
+			// https://github.com/alexei/sprintf.js for sprintf formatting
+			let ftime
+			let currentTime = (new Date() - startTime).toString()
+			currentTime >= 1000 ? ftime = ns.nFormat(currentTime/1000, '00:00:00') : ftime = 'zzzz'
+			ns.print(ns.sprintf(`%':2s %'--15s %'-15s %':-2s`, '', `CORP.JS`, ftime, ``))
 			ns.print(`:: NAME :: ${corporation.name} ::::::::::::::::::::::::::`)
 			ns.print(`:: CSH  :: ${ns.nFormat(corporation.funds, '0.0a')} ::`)
 			ns.print(`:: STK  :: ${corporation.public ? ns.nFormat(corporation.sharePrice, '0.0a'): `NOT PUB`} ::`)
 			tmpStack.forEach(div => {
-				ns.print((ns.vsprintf(`%':8s %':8s %':8s %':8s`, ['', div.name, div.type, ''])))
+				ns.print((ns.vsprintf(`%':2s %' -10s %' -10s %':-10s`, ['', div.name, div.type, ''])))
 			})
 
 			//now get office info, attached to division-- 
@@ -394,22 +385,25 @@ export async function main(ns) {
 				officeInfo = temp2;
 			})
 
-			divisionsArray.forEach(division => {
+
+			while (count > 0) {
+				let divi = tmpStack.pop();
+				count--
 				officePurchased = [false]
 				//currently only assigns employees that are jobless/unassigned
-				getEmployeesWorking(officeInfo[division], division, employeeCache, officeDisplayBool)
+				await getEmployeesWorking(officeInfo[divi.name], divi.name, employeeCache, officeDisplayBool)
 				//buy an office upgrade if possible for the smallest office.
 				if (officeExpansionModuleBool) {
-					officePurchased = buyOfficeSpace(officeInfo[division], division)
+					officePurchased = buyOfficeSpace(officeInfo[divi.name], divi)
 					if (officePurchased[0] && officeDisplayBool) {
-						ns.print(`${division} EXPANDED ${officePurchased[1]} BY ${officePurchased[2]} PEONS`)
+						ns.print(`${divi} EXPANDED ${officePurchased[1]} BY ${officePurchased[2]} PEONS`)
 					} else {
 						officeDisplayBool ? ns.print(`-=-=-=- NEED $ FOR OFFICE UPG -=-=-=-`) : null
 					}
 				} else {
 					ns.print("-=-=-=--=-=-=--=-=-=--=-=-=-")
 				}
-			})
+			}
 		}
 		prevCorp = corporation
 		await ns.sleep(1000)
