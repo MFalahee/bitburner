@@ -1,7 +1,9 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
+    ns.disableLog('sleep')
     ns.tail()
     var exes;
+    var keycache = {};
     var currentServer;
     var nextServer;
     var childrenServers;
@@ -9,8 +11,51 @@ export async function main(ns) {
     var tempServerList = []
     var serverSet = new Set();
     var terminalInput = document.getElementById("terminal-input")
-
-
+    var key = {
+        " ": null, 
+        "0": 48,
+        "1": 49,
+        "2": 50,
+        "3": 51,
+        "4": 52,
+        "5": 53,
+        "6": 54,
+        "7": 55,
+        "8": 56,
+        "9": 57,
+        "CTRL": 17,
+        "DOWNARROW": 40,
+        "ENTER": 13,
+        "ESC": 27,
+        "TAB": 9,
+        "UPARROW": 38,
+        A: 65,
+        B: 66,
+        C: 67,
+        D: 68,
+        E: 69,
+        F: 70,
+        G: 71,
+        H: 72,
+        I: 73,
+        J: 74,
+        K: 75,
+        L: 76,
+        M: 77,
+        N: 78,
+        O: 79,
+        P: 80,
+        Q: 81,
+        R: 82,
+        S: 83,
+        T: 84,
+        U: 85,
+        V: 86,
+        W: 87,
+        X: 88,
+        Y: 89,
+        Z: 90,
+    };
     async function scanExes() {
         for (let hack of ['brutessh', 'ftpcrack', 'relaysmtp', 'sqlinject', 'httpworm']) {
             if (ns.fileExists(hack + '.exe')) {
@@ -19,32 +64,109 @@ export async function main(ns) {
         }
     }
 
-    // let pressEnter = new Event("keypress", e => {
+    function createPressEvent(L) {
+        ns.print(L)
+        ns.print(key[L])
+        var sendInput = new InputEvent(L)
+        if (L === " ") {
+            var sendUp = new KeyboardEvent('keyup', {
+                key: L,
+                bubbles: true,
+                ctrlKey: false,
+                isTrusted: true,
+            })
+            var sendDown = new KeyboardEvent('keydown', {
+                key: L,
+                bubbles: true,
+                ctrlKey: false,
+                isTrusted: true,
 
-    // })
+            })
+            return [sendDown, sendInput, sendUp]
+        } else {
+            var sendUp = new KeyboardEvent('keyup', {
+                key: L,
+                bubbles: true,
+                ctrlKey: false,
+                isTrusted: true,
 
+            })
+            var sendDown = new KeyboardEvent('keydown', {
+                key: L,
+                bubbles: true,
+                ctrlKey: false,
+                isTrusted: true,
+
+                // keyCode: key[`${L}`]
+            })
+            console.log([sendDown, sendInput, sendUp])
+            return [sendDown, sendInput, sendUp]
+        }
+    }
+
+    var pressEnter = new KeyboardEvent('keydown', {
+        key: 'ENTER',
+        bubbles: true,
+        code: key["ENTER"]
+    })
+
+
+
+    async function terminalType(string) {
+        let target = Document
+        ns.print(string)
+        let t = document.getElementById('terminal-input')
+        for (let o of string) {
+            let event = createPressEvent(o);
+            t.focus()
+            event.forEach(ev => {
+                // ev.keyCode = key[o]
+                console.log(ev)
+                console.log(document.dispatchEvent(ev))
+            })
+            await ns.sleep(100)
+            // window.dispatchEvent(event)
+        }
+    }
+
+    async function terminalSR(server) {
+        let tI = document.getElementById('terminal-input')
+        // connect -> backdoor --> wait
+        //handle spaces!
+        await terminalType(`connect ${server}`);
+        await ns.sleep(10000);
+    }
+
+    function sendClick() {
+        let unclickable = document.getElementById('unclickable');
+        let click = new MouseEvent('click', {
+            bubbles: true,
+            cancelable: true,
+            view: window
+        })
+
+        ns.print(unclickable.dispatchEvent(click));
+    }
 
     async function serverCrawl(node, list, set) {
         if (list.length === 0 && !node === 'home') {
             return null
         }
-
         if (node === 'home') {
             list.push('home');
             //don't need to run root stuff on home.
         } else {
             //check access, and req hacking level against players own level
             if (!ns.hasRootAccess(node) && (ns.getServerRequiredHackingLevel(node) <= ns.getPlayer().hacking)) {
-                //execute port unlocks if we have them
                 for (let hack of exes) {
                     ns[hack](node)
                 };
                 ns.nuke(node)
-                //cue function that actually types backdoor command
-                await terminalType(node)
+                //cue function that actually does terminal stuff
+                await terminalSR(node)
             } else if (ns.hasRootAccess(node) && (ns.getServerRequiredHackingLevel(node) <= ns.getPlayer().hacking)) {
                 ns.print(`${node} is ready to be backdoored.`)
-                await terminalType(node);
+                await terminalSR(node);
             } else {
                 ns.print(`Unable to backdoor ${node}`)
             }
@@ -54,41 +176,48 @@ export async function main(ns) {
             //start case
             if (node === 'home') {
                 list.pop();
+                ns.print("Initializing.")
                 ns.scan('home').filter(server => !server.includes("SERVER")).forEach(server => {
                     list.push(server)
                 })
+            }
 
-                let current = list.pop()
+            let current = list.pop()
 
-                if (ns.serverExists(current)) {
-                    ns.print(`${current} is the next server to inspect.`)
-                    ns.scan(current).filter(server => !set.has(server)).filter(server => !server.includes("SERVER")).forEach(server => {
-                        list.push(server)
-                    })
-                    await serverCrawl(current, list, set)
-                } else {
-                    ns.print(`Something went wrong.`)
-                }
+            if (ns.serverExists(current)) {
+                ns.print(current)
+                ns.scan(current).filter(server => !(set.has(server))).forEach(server => {
+                    list.push(server)
+                })
+                await serverCrawl(current, list, set)
+            } else {
+                ns.print(`Something went wrong.`)
             }
         }
     }
 
-    async function terminalType(server) {
-        await ns.tprint(`TRYING connect ${server}`)
-        terminalInput.value = `connect ${server}`
-        await ns.sleep(1000)
-        terminalInput.submit();
-        await ns.sleep(5001)
-        await ns.sleep(5002)
-        ns.print(`type type type`)
 
-    }
 
     while (true) {
         exes = []
+        // sendClick();
         await scanExes()
+        ns.print(exes)
         await serverCrawl('home', [], serverSet);
         ns.print(serverSet)
-        await ns.sleep(1000)
+        await ns.sleep(10000)
     }
 }
+
+
+/*
+async function onKeyDown(event: React.KeyboardEvent<HTMLInputElement>): Promise<void> {
+    // Run command.
+    if (event.keyCode === KEY.ENTER && value !== "") {
+      event.preventDefault();
+      terminal.print(`[${player.getCurrentServer().hostname} ~${terminal.cwd()}]> ${value}`);
+      terminal.executeCommands(router, player, value);
+      saveValue("");
+      return;
+    }
+*/
