@@ -1,4 +1,4 @@
-/** @param {NS} ns **/
+/** @param {import(".").NS } ns */
 async function grabOfficeData(division, officeInfo) {
     ns.clearLog()
     ns.print(` ===== ${division.name} ======`)
@@ -18,7 +18,11 @@ async function grabOfficeData(division, officeInfo) {
 }
 
 export async function main(ns) {
+    ns.tail()
     ns.print("=============== Inside MAIN!!!!!! ===================")
-   return grabOfficeData(arg[0], arg[1])
+
+    ns.print(ns.corporation.getCorporation());
+    ns.print(ns.corporation.getDivision(""));
+//    return grabOfficeData(arg[0], arg[1])
 }
 
