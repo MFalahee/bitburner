@@ -2,7 +2,7 @@
 // STUDYING IT
 // FROM STEAM WORKSHOP GUIDES -> USER @PG SDVX
 // https://steamcommunity.com/sharedfiles/filedetails/?id=2686833015
-
+import * as overview from '/overviewDOM.js';
 
 /** @param {NS} ns**/
 export async function main(ns) {
@@ -263,6 +263,7 @@ export async function main(ns) {
 		tarIndex = 0;
 		loop = false;
 		act = {}
+		await overview.main(ns);
 		await scanExes()
 		await scanServers('', 'home')
 		await hackAll()
