@@ -1,6 +1,8 @@
 /** @param {import(".").NS } ns */
 export async function main(ns) {
-	ns.disableLog('sleep')
+	// ns.disableLog('sleep')
+
+	/* Corp is breaking somewhere */ 
 	var startTime = new Date
 	var temp, temp2
 	var divisionInfo = [];
@@ -10,7 +12,6 @@ export async function main(ns) {
 		"PogPlaces": [1],
 		"PogBots":[1]
 	};
-	var dots = '::::::::::::::::::::::::::::::::::::::::::::::'
 	var purchases = []
 	//variables for module checks
 	var officeDisplayBool;
@@ -40,7 +41,7 @@ export async function main(ns) {
 	/*
 	[ ] Keep track of upgrades/things purchased -- log them out itemized in a command window?  
 	[x] rework aesthetics of the display
-	[ ] Push text of display to the top of the terminal where it should be!
+	[x] Push text of display to the top of the terminal where it should be!
 	*/
 
 

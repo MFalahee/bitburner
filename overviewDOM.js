@@ -1,6 +1,12 @@
 // import {addTableRow} from '/addTableRow.js'
 /** @param {import(".").NS } ns */
 export async function main(ns) {
+    var scripts = ns.ps('home')
+    var totalRam = ns.getServerMaxRam('home')
+    var strings = []
+    var info = []
+    var count = 0;
+    var existing = document.querySelectorAll('#tagged')
     //first add scripts running on home
     //other ideas come later
     function addTableRow(heading, rows) {
@@ -8,10 +14,8 @@ export async function main(ns) {
         var HTMLEles = document.getElementsByTagName('tbody')
         var tableBody = HTMLEles[0]
         var hR; var hH; var hP;
-        // clear existing nodes
-        var existing = tableBody.querySelectorAll('#tagged')
-        existing.length > 0 ? existing.forEach((e) => e.remove()) : null;
-        var info = []
+        
+
         // heading first
         if (heading) {
             hR = document.createElement('tr')
@@ -45,8 +49,9 @@ export async function main(ns) {
                 rR.setAttribute("id", "tagged")
                 rP.setAttribute("class", "MuiTypography-root MuiTypography-body1 jss12 css-f38fma")
                 rH.setAttribute("id", "tagged")
-                rP.setAttribute("id", `tagged-${count}`)
+                rP.setAttribute("id", `tagged`)
                 rP.textContent = script
+                rP.setAttribute('color', 'white')
                 rR.appendChild(rH)
                 rH.appendChild(rP)
                 tableBody.appendChild(rR)
@@ -57,29 +62,34 @@ export async function main(ns) {
         return info
     }
 
-    function updateRows(strings, info) {
-        console.log(info)
-        console.log(strings)
+    function updateRows(strings, info, heading) {
+        // console.log("UPDATING ROWS")
+        let count = 0
+        // if they don't match a string?
+        if (existing && existing.length > 0) {
+            // console.log(existing)
+            existing.forEach(ele => {
+                if (ele.tagName === 'P' && ele.textContent != heading) {
+                    strings[count] ? ele.textContent = strings[count] : ele.remove()
+                    count++
+                }   
+            })
+        }
     }
 
-    var count = 0;
-    var scripts = ns.ps('home')
-    var totalRam = ns.getServerMaxRam('home')
-    var strings = []
-    var info
-    if (scripts && scripts.length > 0) {
-        scripts.forEach(s => {
-            var ram; var scriptString;
-            ram = ns.nFormat(((ns.getScriptRam(s.filename) * s.threads)/totalRam), '0%')
-            scriptString = `${s.filename} ${ram}`
-            strings.push(scriptString)
-        })
-    }
+        if (scripts && scripts.length > 0) {
+            scripts.forEach(s => {
+                var ram; var scriptString;
+                ram = ns.nFormat(((ns.getScriptRam(s.filename) * s.threads)/totalRam), '0%')
+                scriptString = `${s.filename} ${ram}`
+                strings.push(scriptString)
+            })
+        }
 
-    if (strings && strings.length > 0 && count === 0) {
-        info = addTableRow("Scripts running: ", strings)
-        count++
-    } else if (strings && strings.length > 0) {
-        updateRows(strings, info)
-    } 
+        updateRows(strings, info, "Scripts running: ")
+        if (strings && strings.length > 0 && existing.length === 0) {
+            info = addTableRow("Scripts running: ", strings)
+        }
+        
+    // console.log(ns.getPlayer())
 }
