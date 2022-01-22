@@ -18,7 +18,7 @@ export async function main(ns) {
 	await ns.write(files[1], 'weaken(args)', 'w');
 	await ns.write(files[2], 'hack(args)', 'w');
 
-	var exclude = ['home'] //Servers names that won't be used as hosts or deleted
+	var exclude = [''] //Servers names that won't be used as hosts or deleted
 
 	var servers;
 	var hosts;

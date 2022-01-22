@@ -2,7 +2,7 @@
 export async function main(ns) {
 	// ns.disableLog('sleep')
 
-	/* Corp is breaking somewhere */ 
+	/* Corp is breaking somewhere  in getEmployeesWorking*/ 
 	var startTime = new Date
 	var temp, temp2
 	var divisionInfo = [];
