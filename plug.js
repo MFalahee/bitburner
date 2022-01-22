@@ -263,7 +263,7 @@ export async function main(ns) {
 		tarIndex = 0;
 		loop = false;
 		act = {}
-		await overview.main(ns);
+		// await overview.main(ns);
 		await scanExes()
 		await scanServers('', 'home')
 		await hackAll()

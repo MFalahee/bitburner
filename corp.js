@@ -10,7 +10,7 @@ export async function main(ns) {
 		"PogFarms": [1],
 		"PogEats": [1],
 		"PogPlaces": [1],
-		"PogBots":[1]
+		"PogBots": [1]
 	};
 	var purchases = []
 	//variables for module checks
@@ -57,7 +57,9 @@ export async function main(ns) {
 	===============================================================================
 	*/
 
+	
 	function grabOfficeData(divInfo, offInfo) {
+	
 		let temp2, temp3;
 		temp3 = divInfo.name
 		divInfo.cities.forEach(city => {
@@ -71,6 +73,7 @@ export async function main(ns) {
 	}
 
 	async function getEmployeesWorking(offices, name, employeeCache, officeDisplayBool) {
+	
 		var c1 = 0,
 			c2 = 0,
 			c3 = 0
@@ -91,6 +94,7 @@ export async function main(ns) {
 
 
 		while (c1 < offices.length) {
+		
 			//RESETS FOR EACH OFFICE
 			var currOffice = {
 				...offices[c1]
@@ -156,16 +160,22 @@ export async function main(ns) {
 				'totalPower': totalPower
 			}
 
-
-			var avgPower, employeesWorking, employeeDist = [],
+			console.log(currOffice.loc)
+			console.log(powerInd)
+			var flag;
+			var avgPower, employeesWorking, employeeDist = []
 				career
 			toMoveList ? employeesWorking = (employeeList.length - toMoveList.length) : employeesWorking = employeeList.length
 			avgPower = Math.floor(totalPower / employeesWorking)
 
 			//find correct employee ratios
 			Object.keys(powerInd).forEach(key => {
-				var currentCount, temp = 0;
+				var currentCount, temp = 0; 
 				key != 'totalPower' ? currentCount = Math.round(powerInd[key] / avgPower) : null
+
+				if (currentCount === 0) {
+					flag = true;
+				}
 				//Now we apply the ratio... TEMP = #of employees NEEDED TO FILL TO HIT RATIO, store in powerInd[key] as temp
 				switch (key) {
 					case 'opPower':
@@ -187,6 +197,10 @@ export async function main(ns) {
 				}
 				powerInd[key] = [powerInd[key], currentCount, temp]
 			})
+
+			if (flag === true) {
+
+			}
 			if (toMoveList) {
 				while (toMoveList.length > 0) {
 					var highSkill = 0,
@@ -202,7 +216,7 @@ export async function main(ns) {
 							SkillName2 = stat
 						}
 					})
-
+				
 					// this is some bullshit but I'm lost on a better way currently
 					switch (SkillName) {
 						case 'int':
@@ -274,6 +288,7 @@ export async function main(ns) {
 							}
 							break
 					}
+				
 					// we cascade assign here
 					switch (career) {
 						case "B":
@@ -327,7 +342,7 @@ export async function main(ns) {
 
 			if (c1 === offices.length && officeDisplayBool) {
 				ns.print(ns.sprintf(`%s %':-12s %s %':-15s`,'::', `${name} `, `${totalEmployees}`,`employees `));
-				// ns.print(ns.sprintf(`%':-8s %':-5s %':-5s %8s`,`:: MV`, employeesMoved, ` `,  employeesIgnored))
+				ns.print(ns.sprintf(`%':-8s %':-5s %':-5s %8s`,`:: MV`, employeesMoved, ` `,  employeesIgnored))
 			}
 		}
 	}
@@ -382,6 +397,10 @@ export async function main(ns) {
 			tmpStack.forEach(div => {
 				ns.print((ns.vsprintf(`%':2s %' -10s %' -10s %':-10s`, ['', div.name, div.type, ''])))
 			})
+
+			if (purchases.length > 0) {
+				purchases.pop()
+			}
 
 			//now get office info, attached to division-- 
 			divisionInfo.forEach(div => {
