@@ -20,6 +20,7 @@ export async function main(ns) {
 	var employeeCache = {}
 	var displayTemp = [...document.getElementsByClassName("react-resizable")]
 	var display;
+	var corporation;
 
 	while (displayTemp.length > 0) {
 		let splay = displayTemp.pop();
@@ -39,6 +40,7 @@ export async function main(ns) {
 	//
 
 	/*
+	[ ] Rewrite the server hack process on my own
 	[ ] Keep track of upgrades/things purchased -- log them out itemized in a command window?  
 	[x] rework aesthetics of the display
 	[x] Push text of display to the top of the terminal where it should be!
@@ -57,6 +59,18 @@ export async function main(ns) {
 	===============================================================================
 	*/
 
+	async function dataDisplay() {
+		let ftime
+		let currentTime = (new Date() - startTime).toString()
+		currentTime >= 1000 ? ftime = ns.nFormat(currentTime / 1000, '00:00:00') : ftime = 'zzzz'
+		ns.print(ns.sprintf(`%':2s %'--15s %'-15s %':-2s`, '', `CORP.JS`, '', ``))
+		ns.print(`:: NAME :: ${corporation.name} ::::::::::::::::::::::::::`)
+		ns.print(`:: CASH  :: ${ns.nFormat(corporation.funds, '0.0a')} ::`)
+		ns.print(`:: STOCK  :: ${corporation.public ? ns.nFormat(corporation.sharePrice, '0.0a'): `NOT PUB`} ::`)
+		tmpStack.forEach(div => {
+			ns.print((ns.vsprintf(`%':2s %' -10s %' -10s %':-10s`, ['', div.name, div.type, ''])))
+		})
+	}
 
 	function grabOfficeData(divInfo, offInfo) {
 
@@ -160,11 +174,11 @@ export async function main(ns) {
 				'totalPower': totalPower
 			}
 
-			console.log(currOffice.loc)
-			console.log(powerInd)
+			// console.log(currOffice.loc)
+			// console.log(powerInd)
 			var flag;
 			var avgPower, employeesWorking, employeeDist = []
-			career
+			var career;
 			toMoveList ? employeesWorking = (employeeList.length - toMoveList.length) : employeesWorking = employeeList.length
 			avgPower = Math.floor(totalPower / employeesWorking)
 
@@ -363,23 +377,18 @@ export async function main(ns) {
 		var j = ns.corporation.getOffice(name, smallestOfficeLoc)
 		return [((j.size > smallestOffice) ? true : false), smallestOfficeLoc, Math.floor((smallestOffice) / 10)]
 	}
-	var corporation = ns.corporation.getCorporation();
-	var prevCorp;
-	if (corporation) {
-		prevCorp = corporation
-	}
+
 
 	while (true) {
 		ns.tail()
+		corporation = ns.getCorporation();
 		// console.clear();
-		ns.clearLog();
 		// we need to create a corporation at the start of a run when we can afford it (100b)
-		if (ns.createCorporation('Poggers', true)) {
+		if (ns.corporation.createCorporation('Poggers', true)) {
 			//corp created
 			//first industry is farming
 			ns.corporation.expandIndustry('Agriculture', 'PogFarms')
 		} else {
-			corporation = ns.corporation.getCorporation();
 			let count = 0;
 			let tmpStack = corporation.divisions
 			// console.log(tmpStack);
@@ -393,19 +402,8 @@ export async function main(ns) {
 					divisionInfo.push(temp)
 				}
 				// https://github.com/alexei/sprintf.js for sprintf formatting
-				let ftime
-				let currentTime = (new Date() - startTime).toString()
-				currentTime >= 1000 ? ftime = ns.nFormat(currentTime / 1000, '00:00:00') : ftime = 'zzzz'
-				ns.print(ns.sprintf(`%':2s %'--15s %'-15s %':-2s`, '', `CORP.JS`, ''
-					``))
-				ns.print(`:: NAME :: ${corporation.name} ::::::::::::::::::::::::::`)
-				ns.print(`:: CASH  :: ${ns.nFormat(corporation.funds, '0.0a')} ::`)
-				ns.print(`:: STOCK  :: ${corporation.public ? ns.nFormat(corporation.sharePrice, '0.0a'): `NOT PUB`} ::`)
-				tmpStack.forEach(div => {
-					ns.print((ns.vsprintf(`%':2s %' -10s %' -10s %':-10s`, ['', div.name, div.type, ''])))
-				})
-
 				if (purchases.length > 0) {
+					
 					purchases.pop()
 				}
 
@@ -414,7 +412,6 @@ export async function main(ns) {
 					temp2 = grabOfficeData(div, officeInfo);
 					officeInfo = temp2;
 				})
-
 				while (count > 0) {
 					//grab current division we are looking at
 					let divi = tmpStack.pop();
@@ -428,6 +425,8 @@ export async function main(ns) {
 						if (officePurchased[0] && officeDisplayBool) {
 							console.log(`${divi} EXPANDED ${officePurchased[1]} BY ${officePurchased[2]} PEONS`)
 							purchases.push(officePurchased)
+						} else {
+							ns.print(`Can't afford an office expansion yet`)
 						}
 					}
 					//buy other upgrades?
@@ -435,7 +434,6 @@ export async function main(ns) {
 				}
 			}
 		}
-		prevCorp = corporation
 		await ns.sleep(1000)
 	}
 }
