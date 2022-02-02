@@ -6,12 +6,36 @@ export async function main(ns) {
         ns.tail();
         var startTime = new Date()
         var playerStats = ns.getPlayer()
+        console.log(playerStats)
         var crimeModuleBool = false;
         var trainingModuleBool = false;
         var crimes = ['Shoplift', 'Rob store', 'Mug someone', 'Larceny', 'Deal Drugs', 'Bond Forgery', 'Traffick illegal Arms', 'Homicide', 'Grand theft Auto', 'Kidnap and Ransom', 'Assassinate', 'Heist'];
         var chances = new Array(crimes.length, null)
         var stats = ['Charisma', 'Dexterity', 'Strength', 'Defense', 'Agility', 'Hacking'];
         var formulasBool = (ns.fileExists('Formulas.exe'));
+
+        /** HELPER FUNCS 
+         * 
+         * 
+        */
+
+
+        function findExpMult(stat) {
+            let expMult;
+            expMult = playerStats[`${stat.toLowerCase()}_exp_mult`];
+            if (expMult == null) { expMult = 1; }
+            return expMult
+        }
+
+        function findExpGained(stat) {
+            let sliced = stat.substring(0,3);
+            sliced[0].toUpperCase();
+            ns.print(`sliced: `,sliced);
+            let input = `work${sliced}ExpGained`
+            let expGained = playerStats[input];
+            if (expGained == null) { expGained = 0; }
+            return expGained
+        }
 
         /**CRIME MODULE
          * 
@@ -55,13 +79,20 @@ export async function main(ns) {
         trainingModuleBool = await ns.prompt(`Load Training Module?`);
 
 
-        var levelLimit = 100;
+        var levelLimit = 150;
         //this limit will need to be made variable based on multipliers found on the player stats object
+        //based on exp mult
+        //limits - 50 - 100 - 250 - 400 - 1000
+        // exp mults - 1 - 1.5 - 2 - 2.5 - >3
+        //exp mults - 1 - 1.5 - 2 - 2.5 - >3
 
         crimeModuleBool = await ns.prompt(`Load Crime Module?`);
         ns.print(levelLimit)
+
         async function updatePlayer() {
             playerStats = ns.getPlayer()
+            console.log(playerStats)
+            return
         }
 
 
@@ -70,15 +101,9 @@ export async function main(ns) {
             let skill;
             let ans;
             let str = stat.toLowerCase()
-
-
             if (formulasBool) {
-                updatePlayer()
-                var targetExp = ns.formulas.skills.calculateExp(limit, playerStats[`${str}_exp_mult`])
-                var currentExp = playerStats[`${str}_exp`]
+                var targetExp = ns.formulas.skills.calculateExp(limit, findExpMult(stat))
             }
-
-
             switch (stat) {
                 case 'Hacking':
                     ans = ns.universityCourse('rothman university', 'Algorithms', true);
@@ -95,15 +120,17 @@ export async function main(ns) {
             }
 
 
-            while (ns.getPlayer[str] < limit) {
+            while (playerStats[str] < limit) {
+                    let count = 0;
                 if (ns.isBusy() && ans) {
+                    updatePlayer();
+                    let currentExp = playerStats[`${str}_exp`]
                     ns.print(`Currently training: ${stat}`)
                     ns.print(`Target Exp: ${targetExp}`)
                     ns.print(`Current Exp: ${currentExp}`)
-                    if (startTime && playerStats[`work${str.substring(0,2)}ExpGained`] > 0) {
-                        ns.print(Math.floor(player.workChaExpGained / ((new Date().getTime() - time.getTime()) / 1000)) + ' experience per second');
+                    if (startTime && findExpGained(stat) > 0) {
+                        ns.print(Math.floor(findExpGained(stat) / ((new Date().getTime() - startTime.getTime()) / 1000)) + ' experience per second');
                     }
-
                     await ns.sleep(10000)
                 } else {
                     ns.print(`Not Training: ${stat}`)
