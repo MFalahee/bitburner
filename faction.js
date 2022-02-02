@@ -1,12 +1,13 @@
-//this script will be used to jump from faction to faction for rep
-// when the player hits the maximum needed faction for each relevant faction
+/** @param {import(".").NS } ns */
 
 export async function main(ns) {
     ns.tail();
+    var mode = ns.args[0];
     var factions = ns.getPlayer().factions;
 
     //setup faction max rep needed by looking at augmentation prices
-    async function getMaxRep() {
+
+    async function getMaxRep(mode) {
         for (var i = 0; i < factions.length; i++) {
             var faction = factions[i]
             //take each faction, and use ns.getAugmentationsFromFaction(faction) to get the list of augmentations
@@ -18,20 +19,33 @@ export async function main(ns) {
             ns.print(`${faction} max rep aug: ${factionMaxRep} price: ${ns.getAugmentationPrice(factionMaxRep)}`)
             //set faction max rep as the price of the highest priced augmentation.
             let maxRepValue = ns.getAugmentationPrice(factionMaxRep)
-            //getFactionFavor(faction)
-            //workForFaction(faction, workType, focus)
             let rep = ns.getFactionRep(faction)
-            ns.print(`${faction} rep: ${rep} -- rep to go: ${maxRepValue - rep}`)
             if (rep < maxRepValue) {
-                ns.print(`${faction} needs to work for more rep.`)
+                ns.print(`${faction} needs some work.`)
+                if (!ns.isBusy()) {
+                    while (rep < maxRepValue) {
+                    ns.print('doing work')
+                    ns.print(`${faction} rep: ${rep} -- rep to go: ${maxRepValue - rep}`)
+                    ns.workForFaction(faction, 'Hacking Contracts', true) ? null : ns.workForFaction(faction, 'Field Work', true)
+                    rep = ns.getFactionRep(faction)
+                    let favor = ns.getFactionFavorGain(faction)
+                    ns.print(`favorGain: ${favor}`)
+                    if (mode === 'f' && favor > 50) {
+                        ns.print('Stopping work for favor')
+                        ns.stopAction();
+                        break;
+                    }
+                    await ns.sleep(60000)
+                    }
+                }
                 // ns.workForFaction(faction, 'Hacking Contracts', true)
             }
         }
     }
 
     while (true) {
-        if (factions.length > 0) {
-            await getMaxRep()
+        if (factions.length > 0 && mode) {
+            await getMaxRep(mode)
         }
         await ns.sleep(2500)
     }
