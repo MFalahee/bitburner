@@ -2,148 +2,157 @@
 //
 /** @param {import(".").NS } ns */
 export async function main(ns) {
-    ns.disableLog('sleep');
-    ns.tail();
-    var playerStats = ns.getPlayer()
-    var crimeModuleBool = false;
-    var trainingModuleBool = false;
-    var crimes = ['Shoplift', 'Rob store', 'Mug someone', 'Larceny', 'Deal Drugs', 'Bond Forgery', 'Traffick illegal Arms', 'Homicide', 'Grand theft Auto', 'Kidnap and Ransom', 'Assassinate', 'Heist'];
-    var chances = new Array(crimes.length, null)
-    var stats = ['Charisma', 'Dexterity', 'Strength', 'Defence', 'Agility'];
-    var FormulasBool = (ns.fileExists('Formulas.exe'));
+        ns.disableLog('sleep');
+        ns.tail();
+        var startTime = new Date()
+        var playerStats = ns.getPlayer()
+        var crimeModuleBool = false;
+        var trainingModuleBool = false;
+        var crimes = ['Shoplift', 'Rob store', 'Mug someone', 'Larceny', 'Deal Drugs', 'Bond Forgery', 'Traffick illegal Arms', 'Homicide', 'Grand theft Auto', 'Kidnap and Ransom', 'Assassinate', 'Heist'];
+        var chances = new Array(crimes.length, null)
+        var stats = ['Charisma', 'Dexterity', 'Strength', 'Defense', 'Agility', 'Hacking'];
+        var formulasBool = (ns.fileExists('Formulas.exe'));
 
-    /**CRIME MODULE
-     * 
-     * 
-     * 
-     * 
-     */
+        /**CRIME MODULE
+         * 
+         * 
+         * 
+         * 
+         */
 
-    async function updateChances() {
-        let i = 0;
-        while (i < crimes.length) {
-            chances[i] = ns.getCrimeChance(crimes[i]);
-            i++;
-        }
-    }
-    async function doCrime(crime) {
-        if (!ns.isBusy()) {
-            ns.print(`Doing a ${crimes[crime]} job--`);
-            return ns.commitCrime(crimes[crime])
-        }
-    }
-
-    async function findBestCrime() {
-        let i = 0;
-        let best = 0;
-        while (i < crimes.length) {
-            //loop through', 'and find the furthest crime along the array with 100% chance and return it.
-            if (chances[i] == 1) {
-                best = i;
+        async function updateChances() {
+            let i = 0;
+            while (i < crimes.length) {
+                chances[i] = ns.getCrimeChance(crimes[i]);
+                i++;
             }
-            i++;
         }
-        return best
-    }
+        async function doCrime(crime) {
+            if (!ns.isBusy()) {
+                ns.print(`Doing a ${crimes[crime]} job--`);
+                return ns.commitCrime(crimes[crime])
+            }
+        }
 
-    /**TRAINING MODULE
-     * 
-     * 
-     * 
-     */
-    trainingModuleBool = await ns.prompt(`Load Training Module?`);
-
-
-    var levelLimit = 100;
-    //this limit will need to be made variable based on multipliers found on the player stats object
-
-    crimeModuleBool = await ns.prompt(`Load Crime Module?`);
-    ns.print(levelLimit)
-    async function updatePlayer() {
-        playerStats = ns.getPlayer()
-    }
-    async function trainCharacter() {
-        updatePlayer();
-        // training assumes you are in Sector 12.
-        // powerhouse gym, rothman university -- Leadership course for charisma
-        //this function will check stats and train character accordingly.
-        //Stats to train: Charisma, Dexterity, Strength, Defence, Agility
-        // ns.gymWorkout(gymName, stat, focus)
-        // ns.universityCourse(universityName: string, courseName: string, focus?: boolean): boolean;
-        let i = 0;
-        let ans = [false, '']
-        while (i < stats.length) {
-            let str = stats[i]
-            let stat = playerStats[str.toLowerCase()]
-            let targetExp = ns.calculateExp(levelLimit, playerStats[`${str.toLowerCase()}_exp_mult`])
-            let currentExp = playerStats[`${str.toLowerCase()}_exp`]
-            if (stat && stat < levelLimit) { //if stat is less than level limit, train it.
-                
-                /*             
-                    ans = [ns.universityCourse('rothman university', 'Leadership', true), str]
-                    ans = [ns.gymWorkout('powerhouse gym', 'Dexterity', true), str]
-                    ans = [ns.gymWorkout('powerhouse gym', 'Strength', true), str]
-                    ans = [ns.gymWorkout('powerhouse gym', 'Defence', true), str]
-                    ans = [ns.gymWorkout('powerhouse gym', 'Agility', true), str]
-                    hacking_exp: number;
-                    strength_exp: number;
-                    defense_exp: number;
-                    dexterity_exp: number;
-                    agility_exp: number;
-                    charisma_exp: number;
-                    hacking_mult: number;
-                    strength_mult: number;
-                    defense_mult: number;
-                    dexterity_mult: number;
-                    agility_mult: number;
-                    charisma_mult: number;
-                    hacking_exp_mult: number;
-                    strength_exp_mult: number;
-                    defense_exp_mult: number;
-                    dexterity_exp_mult: number;
-                    agility_exp_mult: number;
-                    charisma_exp_mult: number;
-                */
-
-                switch (str) {
-                    case 'Charisma':
-
-
+        async function findBestCrime() {
+            let i = 0;
+            let best = 0;
+            while (i < crimes.length) {
+                //loop through', 'and find the furthest crime along the array with 100% chance and return it.
+                if (chances[i] == 1) {
+                    best = i;
                 }
-
-                // ns.calculateExp(skill: number, skillMult?: number): number;
-                //ns.
-            } else if (playerStats[stat] >= levelLimit || ans[0] === true) {
-                continue
+                i++;
             }
-            //now that we are training we need to check the player stats and interrupt training if they are at 100.
-
-            i++
+            return best
         }
-    }
 
-    /*** MAIN LOOP
-     * 
-     * 
-     * 
-     * 
-     */
-    while (true) {
-        ns.print(`Busy: `, ns.isBusy() + ' :::: at ' + playerStats.location + '.');
-        if (trainingModuleBool) {
-            let wait = await trainCharacter()
-            if (wait > 0) {
-                await ns.sleep(wait)
+        /**TRAINING MODULE
+         * 
+         * 
+         * 
+         */
+        trainingModuleBool = await ns.prompt(`Load Training Module?`);
+
+
+        var levelLimit = 100;
+        //this limit will need to be made variable based on multipliers found on the player stats object
+
+        crimeModuleBool = await ns.prompt(`Load Crime Module?`);
+        ns.print(levelLimit)
+        async function updatePlayer() {
+            playerStats = ns.getPlayer()
+        }
+
+
+        async function train(stat, limit) {
+            //stat is a skill (Agility) to train, limit is the level limit for the skill (100)
+            let skill;
+            let ans;
+            let str = stat.toLowerCase()
+
+
+            if (formulasBool) {
+                updatePlayer()
+                var targetExp = ns.formulas.skills.calculateExp(limit, playerStats[`${str}_exp_mult`])
+                var currentExp = playerStats[`${str}_exp`]
+            }
+
+
+            switch (stat) {
+                case 'Hacking':
+                    ans = ns.universityCourse('rothman university', 'Algorithms', true);
+                    skill = str;
+                    break;
+                case 'Charisma':
+                    ans = ns.universityCourse('rothman university', 'Leadership', true);
+                    skill = str;
+                    break;
+                default:
+                    ans = ns.gymWorkout('powerhouse gym', stat, true);
+                    skill = str;
+                    break;
+            }
+
+
+            while (ns.getPlayer[str] < limit) {
+                if (ns.isBusy() && ans) {
+                    ns.print(`Currently training: ${stat}`)
+                    ns.print(`Target Exp: ${targetExp}`)
+                    ns.print(`Current Exp: ${currentExp}`)
+                    if (startTime && playerStats[`work${str.substring(0,2)}ExpGained`] > 0) {
+                        ns.print(Math.floor(player.workChaExpGained / ((new Date().getTime() - time.getTime()) / 1000)) + ' experience per second');
+                    }
+
+                    await ns.sleep(10000)
+                } else {
+                    ns.print(`Not Training: ${stat}`)
+                }
             }
         }
-        if (crimeModuleBool) {
-            await updateChances();
-            let best = await findBestCrime();
-            let wait = await doCrime(best);
-            if (wait > 0) {
-                await ns.sleep(wait);
+
+        async function trainCharacter() {
+            updatePlayer();
+            // training assumes you are in Sector 12.
+            // powerhouse gym, rothman university -- Leadership course for charisma
+            //this function will check stats and train character accordingly.
+            //Stats to train: Charisma, Dexterity, Strength, Defence, Agility
+            // ns.gymWorkout(gymName, stat, focus)
+            // ns.universityCourse(universityName: string, courseName: string, focus?: boolean): boolean;
+            let i = 0;
+            while (i < stats.length) {
+                let str = stats[i]
+                let stat = playerStats[str.toLowerCase()]
+                ns.print(`${str}: ${stat}`)
+                if (stat && stat < levelLimit) { 
+                    await train(str, levelLimit);
+                    } 
+                    i++
+                }
+            }
+
+            /*** MAIN LOOP
+             * 
+             * 
+             * 
+             * 
+             */
+            while (true) {
+                ns.print(`Busy: `, ns.isBusy() + ' :::: at ' + playerStats.location + '.');
+                if (trainingModuleBool) {
+                    let wait = await trainCharacter()
+                    if (wait > 0) {
+                        await ns.sleep(wait)
+                    }
+                }
+                if (crimeModuleBool) {
+                    await updateChances();
+                    let best = await findBestCrime();
+                    let wait = await doCrime(best);
+                    if (wait > 0) {
+                        await ns.sleep(wait);
+                    }
+                }
+                await ns.sleep(1000);
             }
         }
-        await ns.sleep(1000);
-    }
-}
