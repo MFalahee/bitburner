@@ -1,6 +1,7 @@
 //now that we are in bitnode 4? we have access to singularity functions. Lets figure out a use for them.
 //
 /** @param {import(".").NS } ns */
+import {factionModule} from './faction.js'
 export async function main(ns) {
     ns.disableLog('sleep');
     ns.tail();
@@ -10,6 +11,7 @@ export async function main(ns) {
     var resetModuleBool = false;
     var crimeModuleBool = false;
     var trainingModuleBool = false;
+    var factionModuleBool = false;
     var crimes = ['Shoplift', 'Rob store', 'Mug someone', 'Larceny', 'Deal Drugs', 'Bond Forgery', 'Traffick illegal Arms', 'Homicide', 'Grand theft Auto', 'Kidnap and Ransom', 'Assassinate', 'Heist'];
     var chances = new Array(crimes.length, null)
     var stats = ['Charisma', 'Dexterity', 'Strength', 'Defense', 'Agility', 'Hacking'];
@@ -69,12 +71,45 @@ export async function main(ns) {
      *    //buy a router
      *    //rebuy stuff
      *    //root specific servers for factions
+     *    in theory we could add joining factions to this module
+     *   but it would be a bit of a pain to do so
+     * 
+     * 
+     * 
+     * notable servers = 
+        CSEC, 54
+        avmnite-02h, 217
+        I.I.I.I, 342
+        run4theh111z, 549
+     * 
      */
 
     async function resetModule() {
-        
-    }
+        // just do simple reset for now
 
+        //buy a Tor router
+        if (info('MA', 'home') > 200000 && playerStats.tor == false) {
+            ns.purchaseTor()
+            updatePlayer();
+        } else {
+            ns.print('You already have a Tor router? or... you dont have enough money to buy one.')
+            resetModuleBool = false;
+        }
+        if (playerStats.tor == true) {
+            //buy stuff from darkweb using
+            // purchaseProgram(programName: string): boolean;
+            let programs = ['BruteSSH.exe', 'FTPCrack.exe', 'relaySMTP.exe', 'HTTPWorm.exe','SQLInject.exe','ServerProfiler.exe','DeepscanV1.exe','DeepscanV2.exe','AutoLink.exe','Formulas.exe']
+            for (let i = 0; i < programs.length; i++) {
+                if (ns.purchaseProgram(programs[i]) == true) {
+                   ns.print(`${programs[i]} purchased.`)
+                } else {
+                    ns.print(`${programs[i]} already purchased, or you do not have enough money.`)
+                }
+            }
+        }
+        ns.print('Reset complete.')
+        await ns.sleep(10000)
+    }
 
     /**CRIME MODULE
      * 
@@ -119,13 +154,16 @@ export async function main(ns) {
         // Switches stats automatically to the next one if you are at the max.
      * 
      */
+    resetModuleBool = await ns.prompt('Load Reset Module?');
     trainingModuleBool = await ns.prompt(`Load Training Module?`);
+    crimeModuleBool = await ns.prompt(`Load Crime Module?`);
+    factionModuleBool = await ns.prompt(`Sorry.. one more, Load Faction Module?`);
     var levelLimit = findLevelLimit();
     //this limit will need to be made variable based on multipliers found on the player stats object
     //based on exp mult-- something like:
     //limits - 50 - 100 - 250 - 400 - 1000
     // exp mults - 1 - 1.5 - 2 - 2.5 - >3
-    crimeModuleBool = await ns.prompt(`Load Crime Module?`);
+
 
     function findLevelLimit() {
         let i = 0;
@@ -137,21 +175,21 @@ export async function main(ns) {
             }
             i++;
         }
-        let avg = totalLimits/stats.length
+        let avg = totalLimits / stats.length
         ns.print(`avg limit: ${avg}`)
         let limit = 50
-            if (avg > 1.25) {
-                limit = 100;
-            }
-            if (avg > 1.5){
-                limit = 250;
-            }
-            if (avg > 2){
-                limit = 400;
-            }
-            if (avg > 3){
-                limit = 1000;
-            }
+        if (avg > 1.25) {
+            limit = 100;
+        }
+        if (avg > 1.5) {
+            limit = 250;
+        }
+        if (avg > 2) {
+            limit = 400;
+        }
+        if (avg > 3) {
+            limit = 1000;
+        }
         ns.print('level limit: ' + limit)
         return limit
     }
@@ -169,14 +207,18 @@ export async function main(ns) {
         updatePlayer();
         let exp = 0;
         let mult = grabPlayerInfo('MLT', skill);
-        exp = ns.formulas.skills.calculateExp(limit, mult);
+        if (formulasBool) {
+            exp = ns.formulas.skills.calculateExp(limit, mult);
+        } else {
+            exp = 'Formulas.exe not found'
+        }
         return exp
     }
 
 
     async function train(stat, limit) {
         //stat is a skill (Agility) to train, limit is the level limit for the skill (100)
-        let skill; 
+        let skill;
         let skillTime;
         let ans;
         let str = stat.toLowerCase()
@@ -208,7 +250,7 @@ export async function main(ns) {
                 if (startTime && grabPlayerInfo('EXPG', stat) > 0) {
                     let currentRate = ns.nFormat(grabPlayerInfo('EXPG', stat) / ((new Date().getTime() - skillTime.getTime()) / 1000), '0,000.00')
                     ns.print(currentRate + ' experience per second');
-                    ns.print(`Time to level: ${Math.floor((targetExp- currentExp) / currentRate)} seconds`)
+                    formulasBool ? ns.print(`Time to level: ${Math.floor((targetExp- currentExp) / currentRate)} seconds`) : null
                 }
                 await ns.sleep(10000)
             } else {
@@ -239,12 +281,22 @@ export async function main(ns) {
      * 
      */
     while (true) {
+        //update player stats
+        updatePlayer();
+        if (resetModuleBool) {
+            await resetModule();
+        }
         //Make some sort of initialization check
         //Make sure we are in sector 12 for training
         // ns.print(`Busy: `, ns.isBusy() + ' :::: at ' + playerStats.location + '.');
-        // ns.print(levelLimit)
+        ns.print(levelLimit)
         if (trainingModuleBool) {
+            //currently trains all of the stats in one cycle which takes a LONG time. I sorta wish I could train them one at a time, and in between
             await trainCharacter()
+        }
+
+        if (factionModuleBool) {
+            await factionModule(ns)
         }
 
         if (crimeModuleBool) {
@@ -255,6 +307,7 @@ export async function main(ns) {
                 await ns.sleep(wait);
             }
         }
+        ns.exec('upg.js', 'home');
         await ns.sleep(1000);
     }
 }

@@ -1,5 +1,5 @@
 // import {addTableRow} from '/addTableRow.js'
-/** @param {import(".").NS } ns */
+/** @param {import("..").NS } ns */
 export async function main(ns) {
     var scripts = ns.ps('home')
     var totalRam = ns.getServerMaxRam('home')

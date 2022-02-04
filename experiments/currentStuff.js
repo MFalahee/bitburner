@@ -1,5 +1,5 @@
 //this is a function that will be used to display current work information using singularity functions.
-/** @param {import(".").NS } ns */
+/** @param {import("..").NS } ns */
 export async function main(ns) {
     let time = new Date();
     let totalExperience = 0;

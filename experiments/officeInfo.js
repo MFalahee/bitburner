@@ -1,4 +1,4 @@
-/** @param {import(".").NS } ns */
+/** @param {import("..").NS } ns */
 async function grabOfficeData(division, officeInfo) {
     ns.clearLog()
     ns.print(` ===== ${division.name} ======`)
